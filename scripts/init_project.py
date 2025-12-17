@@ -340,7 +340,7 @@ def test_add():
     precommit_choice = prompt_with_default(
         "\nWould you like to enable pre-commit hooks?\n"
         "These hooks run automatically before each commit to ensure code quality:\n"
-        "- Type checking (mypy)\n"
+        "- Type checking (ty)\n"
         "- Linting (ruff)\n"
         "- Formatting (ruff)\n"
         "- Tests (pytest)\n"

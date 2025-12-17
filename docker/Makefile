@@ -18,8 +18,8 @@ clean: clean-pyc clean-test
 test: clean
 	py.test tests --cov=src --cov-report=term-missing --cov-fail-under 95
 
-mypy:
-	mypy src
+ty:
+	ty check src
 
 lint:
 	pylint src -j 4 --reports=y
@@ -29,7 +29,7 @@ docs: FORCE
 	cd docs; sphinx-build -b html ./source ./build
 FORCE:
 
-check: test lint mypy
+check: test lint ty
 
 # Docker
 ########

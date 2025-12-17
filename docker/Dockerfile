@@ -17,14 +17,12 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /workspace
 
 # Copy essential files for dependency resolution to temp location
-COPY pyproject.toml /tmp/
+COPY pyproject.toml uv.lock /tmp/
 COPY README.md /tmp/
 
 RUN pip install -U pip uv \
     && cd /tmp \
-    && uv pip compile pyproject.toml -o requirements.txt \
-    && uv pip compile pyproject.toml --extra dev -o requirements-dev.txt \
-    && uv pip sync --system requirements.txt requirements-dev.txt \
-    && rm -rf /tmp/pyproject.toml /tmp/README.md
+    && uv sync --system --all-extras \
+    && rm -rf /tmp/pyproject.toml /tmp/uv.lock /tmp/README.md
 
 CMD ["/bin/bash"]
