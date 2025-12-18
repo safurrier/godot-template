@@ -20,3 +20,11 @@ CLAUDE.md
 # Documentation build artifacts
 site/
 .cache/
+
+# AI/planning artifacts
+.ai/**
+
+# act (GitHub Actions local runner)
+.actrc.local
+.secrets
+.env.act

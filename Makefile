@@ -1,4 +1,4 @@
-.PHONY: compile-deps setup clean-pyc clean-test clean-venv clean test mypy lint format check clean-example docs-install docs-build docs-serve docs-check docs-clean dev-env refresh-containers rebuild-images build-image push-image
+.PHONY: compile-deps setup clean-pyc clean-test clean-venv clean test ty lint format check clean-example docs-install docs-build docs-serve docs-check docs-clean dev-env refresh-containers rebuild-images build-image push-image
 
 # Module name - will be updated by init script
 MODULE_NAME := src
@@ -14,9 +14,8 @@ PYTHON_VERSION ?= 3.12
 ensure-uv:  # Install uv if not present
 	@which uv > /dev/null || (curl -LsSf https://astral.sh/uv/install.sh | sh)
 
-setup: ensure-uv compile-deps ensure-scripts  # Install dependencies
-	UV_PYTHON_VERSION=$(PYTHON_VERSION) uv venv
-	UV_PYTHON_VERSION=$(PYTHON_VERSION) uv pip sync requirements.txt requirements-dev.txt
+setup: ensure-uv ensure-scripts  # Install dependencies
+	UV_PYTHON_VERSION=$(PYTHON_VERSION) uv sync --all-extras
 	$(MAKE) install-hooks
 
 install-hooks:  # Install pre-commit hooks if in a git repo with hooks configured
@@ -51,8 +50,8 @@ clean: clean-pyc clean-test clean-venv
 test: setup  # Run pytest with coverage
 	uv run -m pytest tests --cov=$(MODULE_NAME) --cov-report=term-missing
 
-mypy: setup  # Run type checking
-	uv run -m mypy $(MODULE_NAME)
+ty: setup  # Run type checking
+	uv run ty check $(MODULE_NAME)
 
 lint: setup  # Run ruff linter with auto-fix
 	uv run -m ruff check --fix $(MODULE_NAME)
@@ -60,7 +59,118 @@ lint: setup  # Run ruff linter with auto-fix
 format: setup  # Run ruff formatter
 	uv run -m ruff format $(MODULE_NAME)
 
-check: setup lint format test mypy  # Run all quality checks
+check: setup lint format test ty  # Run all quality checks
+
+# Local CI Testing with act
+###########################
+
+# Detect docker socket (Colima, Docker, or Podman)
+define docker_socket
+$(shell \
+	if [ -S $$HOME/.colima/default/docker.sock ]; then \
+		echo "$$HOME/.colima/default/docker.sock"; \
+	elif [ -S /var/run/docker.sock ]; then \
+		echo "/var/run/docker.sock"; \
+	elif [ -S $$HOME/.docker/run/docker.sock ]; then \
+		echo "$$HOME/.docker/run/docker.sock"; \
+	elif [ -S /run/user/$$(id -u)/podman/podman.sock ]; then \
+		echo "/run/user/$$(id -u)/podman/podman.sock"; \
+	else \
+		echo "/var/run/docker.sock"; \
+	fi \
+)
+endef
+
+DOCKER_SOCKET := $(docker_socket)
+ACT_IMAGE := catthehacker/ubuntu:act-22.04
+ACT_ARCH := linux/amd64
+
+act-check:  # Check if act is installed, install if missing
+	@if ! which act > /dev/null 2>&1; then \
+		echo "⚠️  act is not installed. Installing automatically..."; \
+		$(MAKE) act-install; \
+	fi
+
+docker-check:  # Check if Docker/Podman/Colima is running
+	@if ! DOCKER_HOST="unix://$(DOCKER_SOCKET)" docker ps >/dev/null 2>&1; then \
+		echo "❌ Cannot connect to Docker daemon"; \
+		echo ""; \
+		echo "Please start your container runtime first:"; \
+		echo "  • Docker Desktop: Open Docker Desktop app"; \
+		echo "  • Colima: run 'colima start'"; \
+		echo "  • Podman: run 'podman machine start'"; \
+		echo "  • Docker (Linux): run 'sudo systemctl start docker'"; \
+		echo ""; \
+		echo "Attempted socket: $(DOCKER_SOCKET)"; \
+		exit 1; \
+	fi
+	@echo "✓ Docker is running (socket: $(DOCKER_SOCKET))"
+
+act-install:  ## Install act for local CI testing
+	@echo "Installing act (GitHub Actions local runner)..."
+	@if which act > /dev/null 2>&1; then \
+		echo "✅ act is already installed: $$(which act)"; \
+		act --version; \
+	elif which brew > /dev/null 2>&1; then \
+		echo "📦 Installing act via Homebrew..."; \
+		brew install act; \
+	else \
+		echo "📦 Installing act via install script..."; \
+		curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash; \
+	fi
+	@echo ""
+	@echo "✅ act installed successfully!"
+	@echo "💡 Run 'make ci-list' to see available workflows"
+	@echo "💡 Run 'make ci-local' to run CI checks locally"
+
+ci-list: act-check docker-check  ## List available GitHub Actions workflows and jobs
+	@echo "📋 Available workflows and jobs:"
+	@DOCKER_HOST="unix://$(DOCKER_SOCKET)" act -l
+
+ci-local: act-check docker-check  ## Run CI checks locally (tests workflow)
+	@echo "🔬 Running local CI checks..."
+	@echo "Using Docker socket: $(DOCKER_SOCKET)"
+	@echo "Container architecture: $(ACT_ARCH)"
+	@echo "Image: $(ACT_IMAGE)"
+	@echo ""
+	@JOB=$${JOB:-checks}; \
+	DOCKER_HOST="unix://$(DOCKER_SOCKET)" act pull_request \
+		-W .github/workflows/tests.yml \
+		-j $$JOB \
+		--container-daemon-socket - \
+		--container-architecture $(ACT_ARCH) \
+		-P ubuntu-latest=$(ACT_IMAGE)
+	@echo ""
+	@echo "✅ Local CI checks complete!"
+
+ci-local-docs: act-check docker-check  ## Run documentation build check locally
+	@echo "📚 Running local documentation build check..."
+	@DOCKER_HOST="unix://$(DOCKER_SOCKET)" act pull_request \
+		-W .github/workflows/docs.yml \
+		-j build-check \
+		--container-daemon-socket - \
+		--container-architecture $(ACT_ARCH) \
+		-P ubuntu-latest=$(ACT_IMAGE)
+	@echo ""
+	@echo "✅ Documentation build check complete!"
+
+ci-debug: act-check docker-check  ## Fast local test debugging (uses ci-debug.yml workflow)
+	@echo "🔧 Running CI debug workflow for fast iteration"
+	@echo "💡 Edit .github/workflows/ci-debug.yml to customize which tests run"
+	@echo ""
+	@DOCKER_HOST="unix://$(DOCKER_SOCKET)" act workflow_dispatch \
+		-W .github/workflows/ci-debug.yml \
+		--container-daemon-socket - \
+		--container-architecture $(ACT_ARCH) \
+		-P ubuntu-latest=$(ACT_IMAGE)
+	@echo ""
+	@echo "✅ Debug workflow complete!"
+
+ci-clean:  ## Clean up act cache and containers
+	@echo "🧹 Cleaning up act cache and containers..."
+	@-docker ps -a | grep "act-" | awk '{print $$1}' | xargs docker rm -f 2>/dev/null || true
+	@-docker images | grep "act-" | awk '{print $$3}' | xargs docker rmi -f 2>/dev/null || true
+	@echo "✅ Cleanup complete!"
 
 # Documentation
 ###############

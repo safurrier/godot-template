@@ -19,10 +19,8 @@ jobs:
         
       - name: Install dependencies
         run: |
-          uv pip compile pyproject.toml -o requirements.txt
-          uv pip compile pyproject.toml --extra dev -o requirements-dev.txt
           uv venv
-          uv pip sync requirements.txt requirements-dev.txt
+          uv sync --all-extras
           
       - name: Determine module name
         id: module
@@ -43,8 +41,8 @@ jobs:
       - name: Run Tests
         run: uv run -m pytest tests --cov=${{ steps.module.outputs.name }} --cov-report=term-missing --cov-report=xml
         
-      - name: Run MyPy
-        run: uv run -m mypy ${{ steps.module.outputs.name }}
+      - name: Run ty
+        run: uv run ty check ${{ steps.module.outputs.name }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3

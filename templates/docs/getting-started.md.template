@@ -62,7 +62,7 @@ Run `make` to see all available commands:
 - `make test` - Run tests with coverage
 - `make lint` - Run linting
 - `make format` - Format code
-- `make mypy` - Run type checking
+- `make ty` - Run type checking
 - `make check` - Run all quality checks
 - `make docs-serve` - Serve documentation locally
 - `make docs-build` - Build documentation

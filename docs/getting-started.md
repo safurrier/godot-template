@@ -92,7 +92,7 @@ Your project comes with these make targets:
 - `make test` - Run tests with coverage
 - `make lint` - Run linting with auto-fix
 - `make format` - Format code
-- `make mypy` - Run type checking
+- `make ty` - Run type checking
 - `make check` - Run all quality checks
 - `make docs-serve` - Serve documentation locally (if enabled)
 - `make docs-build` - Build documentation (if enabled)
