@@ -1,0 +1,9 @@
+# Project Structure
+
+```
+{project_name}/
+├── godot/
+├── rust/
+├── docs/
+└── README.md
+```

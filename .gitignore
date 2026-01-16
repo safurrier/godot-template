@@ -17,6 +17,25 @@ docker/.env
 .aider*
 CLAUDE.md
 
+# Godot project artifacts
+.godot/
+*.import
+*.uid
+*.tmp
+*.translation
+export_presets.cfg
+.import/
+!godot/.godot/
+!godot/.godot/extension_list.cfg
+
+# Rust artifacts
+rust/target/
+
+# GDExtension build artifacts
+godot/addons/**/bin/**/*.so
+godot/addons/**/bin/**/*.dll
+godot/addons/**/bin/**/*.dylib
+
 # Documentation build artifacts
 site/
 .cache/

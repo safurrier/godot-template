@@ -1,0 +1,21 @@
+# Godot + Rust Resources
+
+Use this page to collect helpful links for your team.
+
+## Godot Docs
+
+- Godot Manual: https://docs.godotengine.org/en/stable/
+- Class Reference: https://docs.godotengine.org/en/stable/classes/
+- Headless/CLI: https://docs.godotengine.org/en/stable/tutorials/editor/command_line_tutorial.html
+
+## Rust + GDExtension
+
+- godot-rust book: https://godot-rust.github.io/book/
+- godot-rust repo: https://github.com/godot-rust/gdext
+
+## Tooling
+
+- GUT: https://github.com/bitwes/Gut
+- GDUnit4: https://github.com/MikeSchulze/gdUnit4
+- gdformat / gdlint: https://github.com/Scony/godot-gdscript-toolkit
+- rust-cache: https://github.com/Swatinem/rust-cache

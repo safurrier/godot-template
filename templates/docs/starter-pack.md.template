@@ -1,0 +1,10 @@
+# Starter Pack Tutorial
+
+Use this page to walk new teammates through building their first playable scene.
+
+## Suggested Steps
+
+1. Create a Player scene (CharacterBody2D).
+2. Attach a movement script.
+3. Add a Camera2D and make it current.
+4. Run the project and verify controls.

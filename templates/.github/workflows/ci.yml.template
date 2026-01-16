@@ -1,0 +1,54 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Rust toolchain (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Setup Godot
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.5.1
+          use-dotnet: false
+          include-templates: false
+
+      - name: Rust fmt
+        working-directory: rust
+        run: cargo fmt --all --check
+
+      - name: Rust clippy
+        working-directory: rust
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Core tests
+        working-directory: rust
+        run: cargo test -p core
+
+      - name: Build extension (debug)
+        working-directory: rust
+        run: cargo build -p my_ext
+
+      - name: Copy extension into Godot project
+        run: |
+          mkdir -p godot/addons/my_ext/bin/linux/debug
+          cp rust/target/debug/libmy_ext.so godot/addons/my_ext/bin/linux/debug/libmy_ext.so
+
+      - name: Headless smoke test
+        run: |
+          godot --headless --path godot --script res://scripts/smoke_test.gd

@@ -2,15 +2,12 @@
 
 {project_description}
 
-## Features
+## Template Highlights
 
-- 🔧 Modern Python tooling with UV package manager
-- 🧪 Comprehensive testing with pytest
-- 🎨 Code formatting with Ruff
-- 🔍 Type checking with MyPy
-- 📚 Documentation with MkDocs + Material
-- 🚀 CI/CD with GitHub Actions
-- 🐳 Docker support for development
+- 🎮 Godot 4 project with a headless smoke test
+- 🦀 Rust workspace with fast core logic + thin GDExtension bridge
+- ⚙️ Automation-first Makefile commands (fmt/lint/test/smoke)
+- 📚 Beginner-friendly documentation
 
 ## Quick Start
 
@@ -18,66 +15,34 @@
 # Clone the repository
 git clone https://github.com/{github_username}/{project_name}.git
 cd {project_name}
-
-# Set up the development environment
-make setup
-
-# Run quality checks
-make check
 ```
 
-## Installation
-
-### For Users
-
+Build and run the smoke test:
 ```bash
-pip install {project_name}
-```
-
-### For Development
-
-```bash
-# Clone the repository
-git clone https://github.com/{github_username}/{project_name}.git
-cd {project_name}
-
-# Set up development environment
-make setup
-
-# Install pre-commit hooks (optional)
-make install-hooks
+make build-ext
+make smoke
 ```
 
 ## Project Structure
 
 ```
 {project_name}/
-├── {project_module_name}/      # Main package
-├── tests/                      # Test files
-├── docs/                       # Documentation
-├── scripts/                    # Utility scripts
-├── docker/                     # Docker configuration
-└── .github/workflows/          # CI/CD automation
+├── godot/                   # Godot project root
+├── rust/                    # Rust workspace
+├── docs/                    # Documentation
+└── README.md
 ```
 
-## Usage
+## Documentation
 
-```python
-import {project_module_name}
-
-# Your usage examples here
-```
-
-## Development
-
-See the [Getting Started](getting-started.md) guide for detailed development instructions.
+See the [Getting Started](getting-started.md) guide for a beginner walkthrough.
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Run the test suite: `make check`
+4. Run checks (`make ci`)
 5. Submit a pull request
 
 ## License

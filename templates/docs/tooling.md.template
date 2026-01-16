@@ -1,0 +1,18 @@
+# Tooling & Automation
+
+Summarize recommended tools and commands for your team.
+
+## Commands
+
+- make fmt
+- make lint
+- make test
+- make build-ext
+- make smoke
+- make ci
+
+## Suggested Installs
+
+- GUT: install via Godot AssetLib and enable in Project Settings → Plugins.
+- GDUnit4: install via Godot AssetLib and enable in Project Settings → Plugins.
+- gdformat / gdlint: `pip install godot-gdscript-toolkit`

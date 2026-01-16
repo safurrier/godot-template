@@ -1,0 +1,15 @@
+# Rust + GDExtension Guide
+
+Document your fast-core + thin-bridge architecture here.
+
+## Principles
+
+- Core logic in Rust (`rust/core`)
+- Minimal bridge in `rust/gdext_bridge`
+- Godot scenes in `godot/`
+
+## Commands
+
+- make test
+- make build-ext
+- make smoke

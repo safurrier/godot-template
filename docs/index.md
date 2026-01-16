@@ -1,67 +1,29 @@
-# Python Collab Template
+# Godot 4 + Rust GDExtension Template
 
-A modern, collaborative Python project template with comprehensive tooling and best practices built-in.
+Welcome! This template is built for fast iteration with AI or human collaborators by putting most logic in Rust and keeping the Godot integration thin and stable.
 
-## 🎯 Template Features
+## What You Get
 
-This template provides everything you need for a professional Python project:
+- ✅ **Godot 4 starter project** in `godot/` with a headless smoke test
+- ✅ **Rust workspace** in `rust/` with a pure `core` crate and a `gdext_bridge` crate
+- ✅ **Automation-first commands** (`make ci` runs fmt/lint/tests/build/smoke)
+- ✅ **Beginner docs** for both Godot and GDExtension workflows
 
-- 🔧 **Modern Tooling**: UV package manager, Ruff formatting/linting, MyPy type checking
-- 🧪 **Testing**: pytest with coverage reporting and CI integration
-- 📚 **Documentation**: Optional MkDocs + Material theme with auto-generation
-- 🚀 **CI/CD**: GitHub Actions with quality checks and automated deployment
-- 🐳 **Development**: Docker support and pre-commit hooks
-- 📦 **Packaging**: Modern pyproject.toml configuration with hatchling
+## Quick Start
 
-## 🚀 Quick Start
-
-### Using This Template
-
-1. **Create a new repository** from this template on GitHub
-2. **Clone your new repository**:
+1. Install Rust + Godot 4.
+2. Run the extension build + smoke test:
    ```bash
-   git clone https://github.com/your-username/your-project-name.git
-   cd your-project-name
+   make build-ext
+   make smoke
    ```
-3. **Initialize your project**:
+3. Run the core tests:
    ```bash
-   make init
+   make test
    ```
-4. **Follow the prompts** to customize your project
 
-### What `make init` Does
+## Where to Go Next
 
-The initialization script will:
-- Prompt for project name, description, and author information
-- Update all configuration files with your project details
-- Choose how to handle example code (keep, simplify, or remove)
-- Optionally set up MkDocs documentation (default: yes)
-- Rename directories and update imports
-- Set up git repository and pre-commit hooks
-
-## 📁 Template Structure
-
-```
-python-collab-template/
-├── src/                        # Source code (renamed during init)
-├── tests/                      # Test files
-├── scripts/                    # Utility scripts (including init)
-├── templates/                  # Documentation templates
-├── docker/                     # Docker configuration
-├── .github/workflows/          # CI/CD automation
-├── pyproject.toml             # Project configuration
-├── Makefile                   # Development commands
-└── README.md                  # Project documentation
-```
-
-## 🛠️ Available Commands
-
-After initialization, your project will have these commands:
-
-- `make setup` - Set up development environment
-- `make test` - Run tests with coverage
-- `make check` - Run all quality checks
-- `make docs-serve` - Serve documentation locally (if enabled)
-- `make docs-build` - Build documentation (if enabled)
-
-For complete usage instructions, see the [Getting Started](getting-started.md) guide.
+- **Getting Started**: install tools and run the project.
+- **Rust + GDExtension Guide**: architecture and workflow.
+- **Tooling & Exports**: tests and formatter/linter setup.

@@ -21,14 +21,9 @@ def test_mkdocs_dependencies_configured():
         mkdocs_deps = [dep for dep in dev_deps if "mkdocs" in dep.lower()]
         
         if mkdocs_deps:  # Only check if docs deps are present
-            assert len(mkdocs_deps) >= 2, "Should have mkdocs-material and mkdocstrings dependencies"
-            
-            # Verify specific dependencies
+            # Verify essential dependencies
             has_material = any("mkdocs-material" in dep for dep in dev_deps)
-            has_mkdocstrings = any("mkdocstrings" in dep for dep in dev_deps)
-            
             assert has_material, "Should have mkdocs-material dependency"
-            assert has_mkdocstrings, "Should have mkdocstrings dependency"
 
 
 def test_mkdocs_config_exists():
@@ -65,7 +60,6 @@ def test_mkdocs_config_valid():
             plugin_names.append(plugin)
     
     assert "search" in plugin_names, "Should have search plugin"
-    assert "mkdocstrings" in plugin_names, "Should have mkdocstrings plugin"
 
 
 def test_documentation_structure_exists():
@@ -127,7 +121,11 @@ def test_template_files_exist():
         "mkdocs.yml.template",
         "docs/index.md.template",
         "docs/getting-started.md.template",
-        "docs/reference/api.md.template",
+        "docs/rust-gdext.md.template",
+        "docs/starter-pack.md.template",
+        "docs/project-structure.md.template",
+        "docs/tooling.md.template",
+        "docs/reference/resources.md.template",
         ".github/workflows/docs.yml.template"
     ]
     
