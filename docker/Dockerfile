@@ -23,13 +23,19 @@ RUN rustup component add clippy rustfmt
 # Install uv for Python package management
 RUN pip3 install --break-system-packages uv
 
-# Install Godot 4.5.1 headless
+# Install Godot 4.5.1 headless (architecture-aware)
 ENV GODOT_VERSION=4.5.1
-RUN wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip \
-    && unzip Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip \
-    && mv Godot_v${GODOT_VERSION}-stable_linux.x86_64 /usr/local/bin/godot \
+RUN ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "arm64" ]; then \
+        GODOT_ARCH="linux.arm64"; \
+    else \
+        GODOT_ARCH="linux.x86_64"; \
+    fi && \
+    wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_${GODOT_ARCH}.zip \
+    && unzip Godot_v${GODOT_VERSION}-stable_${GODOT_ARCH}.zip \
+    && mv Godot_v${GODOT_VERSION}-stable_${GODOT_ARCH} /usr/local/bin/godot \
     && chmod +x /usr/local/bin/godot \
-    && rm Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
+    && rm Godot_v${GODOT_VERSION}-stable_${GODOT_ARCH}.zip
 
 WORKDIR /workspace
 

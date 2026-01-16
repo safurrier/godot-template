@@ -6,6 +6,8 @@ reloadable = true
 [libraries]
 linux.debug.x86_64 = "res://addons/my_ext/bin/linux/debug/libmy_ext.so"
 linux.release.x86_64 = "res://addons/my_ext/bin/linux/release/libmy_ext.so"
+linux.debug.arm64 = "res://addons/my_ext/bin/linux/debug/libmy_ext.so"
+linux.release.arm64 = "res://addons/my_ext/bin/linux/release/libmy_ext.so"
 
 windows.debug.x86_64 = "res://addons/my_ext/bin/windows/debug/my_ext.dll"
 windows.release.x86_64 = "res://addons/my_ext/bin/windows/release/my_ext.dll"
