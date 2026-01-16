@@ -1,28 +1,36 @@
-FROM python:3.12-slim
+FROM rust:1.92-slim-bookworm
 
-# Install Auxiliary Software
+# Install system dependencies for Godot and general tooling
 RUN apt-get update && apt-get install -y \
+    wget \
+    unzip \
     make \
-    apt-utils \
-    apt-transport-https \
-    curl \
-    gcc \
-    gnupg \
-    gnupg-agent \
-    graphviz \
-    software-properties-common \
-    vim \
+    python3 \
+    python3-pip \
+    python3-venv \
+    libx11-6 \
+    libxcursor1 \
+    libxinerama1 \
+    libxrandr2 \
+    libxi6 \
+    libgl1 \
+    libasound2 \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Rust components
+RUN rustup component add clippy rustfmt
+
+# Install uv for Python package management
+RUN pip3 install --break-system-packages uv
+
+# Install Godot 4.5.1 headless
+ENV GODOT_VERSION=4.5.1
+RUN wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip \
+    && unzip Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip \
+    && mv Godot_v${GODOT_VERSION}-stable_linux.x86_64 /usr/local/bin/godot \
+    && chmod +x /usr/local/bin/godot \
+    && rm Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
+
 WORKDIR /workspace
-
-# Copy essential files for dependency resolution to temp location
-COPY pyproject.toml uv.lock /tmp/
-COPY README.md /tmp/
-
-RUN pip install -U pip uv \
-    && cd /tmp \
-    && uv sync --system --all-extras \
-    && rm -rf /tmp/pyproject.toml /tmp/uv.lock /tmp/README.md
 
 CMD ["/bin/bash"]

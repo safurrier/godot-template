@@ -1,4 +1,4 @@
-.PHONY: fmt lint test build-ext copy-ext smoke ci check docs-install docs-build docs-serve docs-check docs-clean
+.PHONY: fmt lint test build-ext copy-ext smoke ci check docs-install docs-build docs-serve docs-check docs-clean dev-env dev-shell dev-ci dev-check-tools dev-validate
 
 GODOT ?= godot
 RUST_DIR := rust
@@ -81,3 +81,27 @@ docs-clean:
 	rm -rf site/
 	rm -rf .cache/
 	@echo "Documentation cleaned"
+
+# Container dev environment
+############################
+dev-env:
+	docker compose -f docker/docker-compose.yml build
+	docker compose -f docker/docker-compose.yml run --rm dev
+
+dev-shell:
+	docker compose -f docker/docker-compose.yml run --rm dev /bin/bash
+
+dev-ci:
+	docker compose -f docker/docker-compose.yml run --rm dev make ci
+
+dev-check-tools:
+	@echo "Checking container tool availability..."
+	docker compose -f docker/docker-compose.yml run --rm dev bash -c '\
+		echo "=== Rust ===" && rustc --version && cargo --version && \
+		echo "=== Rust tools ===" && cargo fmt --version && cargo clippy --version && \
+		echo "=== Godot ===" && godot --version && \
+		echo "=== Python/uv ===" && python3 --version && uv --version && \
+		echo "=== All tools OK ==="'
+
+dev-validate: dev-check-tools dev-ci
+	@echo "Dev environment fully validated"
