@@ -1,0 +1,5 @@
+{
+  "initial_state": { "tick": 5 },
+  "input": {},
+  "expected_state": { "tick": 6 }
+}

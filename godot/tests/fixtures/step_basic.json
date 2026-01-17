@@ -1,0 +1,5 @@
+{
+  "initial_state": { "tick": 0 },
+  "input": { "delta": 2 },
+  "expected_state": { "tick": 2 }
+}

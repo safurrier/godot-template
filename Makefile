@@ -1,4 +1,4 @@
-.PHONY: fmt lint test build-ext copy-ext smoke ci check docs-install docs-build docs-serve docs-check docs-clean dev-env dev-shell dev-ci dev-check-tools dev-validate
+.PHONY: fmt lint test build-ext copy-ext smoke ci check fixtures gdscript-ci docs-install docs-build docs-serve docs-check docs-clean dev-env dev-shell dev-ci dev-check-tools dev-validate dev-fixtures
 
 GODOT ?= godot
 RUST_DIR := rust
@@ -29,6 +29,14 @@ smoke: copy-ext
 ci: fmt lint test build-ext smoke
 
 check: ci
+
+# GDScript validation
+#####################
+fixtures:
+	$(GODOT) --headless --path godot --script res://scripts/run_fixtures.gd
+
+gdscript-ci: smoke fixtures
+	@echo "GDScript CI complete"
 
 # Documentation
 ###############
@@ -105,3 +113,6 @@ dev-check-tools:
 
 dev-validate: dev-check-tools dev-ci
 	@echo "Dev environment fully validated"
+
+dev-fixtures:
+	docker compose -f docker/docker-compose.yml run --rm dev make fixtures
