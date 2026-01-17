@@ -1,5 +1,11 @@
 {
-  "initial_state": { "tick": 5, "seed_val": 0 },
+  "initial_state": { "tick": 5, "seed_val": 0, "rng_state": 0 },
   "input": {},
-  "expected_state": { "tick": 6, "seed_val": 0 }
+  "expected_state": { "tick": 6, "seed_val": 0, "rng_state": 0 },
+  "expected_events": [
+    {
+      "type": "TICK_ADVANCED",
+      "payload": { "old_tick": 5, "new_tick": 6 }
+    }
+  ]
 }

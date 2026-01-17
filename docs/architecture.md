@@ -61,15 +61,20 @@ static func step(state: Dictionary, inp: Dictionary) -> Dictionary:
 
 ## The Three Seams
 
-### `step(state, input) -> new_state`
-The main simulation tick. Advances game state by one frame.
+### `step(state, input) -> StepResult`
+The main simulation tick. Returns **both** the next state **and** deterministic events.
 
 ```gdscript
-var state = {"tick": 0, "health": 100}
-var input = {"action": "attack", "target": 42}
-var next_state = CoreAPI.step(state, input)
-# next_state = {"tick": 1, "health": 100, ...}
+var state = GameState.from_dict({"tick": 0, "seed_val": 0, "rng_state": 42})
+var input = GameInput.from_dict({"delta": 1})
+var result: StepResult = CoreAPI.step(state, input)
+
+# result.state = GameState with tick=1
+# result.events = [GameEvent.tick_advanced(0, 1)]
 ```
+
+Events describe "what happened" during the step - they're deterministic outputs, not side effects.
+This enables replay systems to re-emit the same events given the same inputs.
 
 ### `decide(state) -> decision`
 AI decision-making. Returns what action to take given current state.
@@ -92,14 +97,24 @@ var level = CoreAPI.generate(12345, {"width": 100, "height": 100, "difficulty": 
 
 ```
 godot/core/
-├── core_api.gd     # The three seams: step, decide, generate
-├── schema.gd       # JSON normalization, validation helpers
-└── sim_clock.gd    # Batch simulation driver
+├── core_api.gd           # The three seams: step, decide, generate
+├── schema.gd             # JSON normalization, validation helpers
+├── sim_clock.gd          # Batch simulation driver
+└── resources/
+    ├── game_state.gd     # Typed state with RNG
+    ├── game_input.gd     # Typed input
+    ├── game_event.gd     # Deterministic events
+    └── step_result.gd    # step() return type (state + events)
+
+godot/adapters/
+├── input_adapter.gd      # Godot Input → GameInput
+├── view_adapter.gd       # GameState → Node updates
+└── event_adapter.gd      # GameEvent → VFX/SFX/UI
 
 godot/tests/
-└── fixtures/       # JSON test files
+└── fixtures/             # JSON test files
     ├── step_basic.json
-    └── step_edge_cases.json
+    └── step_with_events.json
 ```
 
 ## Data Contracts
@@ -174,6 +189,85 @@ static func step(state: Dictionary, inp: Dictionary) -> Dictionary:
 ```
 
 Run the same fixtures against both implementations to verify equivalence.
+
+## Deterministic Events
+
+Events are messages emitted by `step()` that describe what happened during the simulation tick. They're part of the deterministic output - same inputs produce same events.
+
+### Event Types
+
+```gdscript
+enum Type {
+    TICK_ADVANCED,      # Simulation time moved forward
+    DAMAGE_APPLIED,     # Entity took damage
+    ENTITY_SPAWNED,     # New entity created
+    ENTITY_DESTROYED,   # Entity removed
+    SFX_REQUESTED,      # Play a sound effect
+    VFX_REQUESTED,      # Spawn visual effect
+    UI_MESSAGE,         # Show UI notification
+}
+```
+
+### Creating Events
+
+Events are created via factory methods in `GameEvent`:
+
+```gdscript
+# In core_api.gd step() function:
+events.append(GameEvent.tick_advanced(old_tick, next.tick))
+events.append(GameEvent.damage_applied(entity_id, 25, new_health))
+events.append(GameEvent.sfx_requested("hit"))
+```
+
+### Testing Events
+
+Fixtures can assert both state and events:
+
+```json
+{
+  "initial_state": { "tick": 0, "seed_val": 0, "rng_state": 0 },
+  "input": { "delta": 2 },
+  "expected_state": { "tick": 2, "seed_val": 0, "rng_state": 0 },
+  "expected_events": [
+    { "type": "TICK_ADVANCED", "payload": { "old_tick": 0, "new_tick": 2 } }
+  ]
+}
+```
+
+## Adapters
+
+Adapters form the boundary between the deterministic core and Godot's presentation layer.
+
+### InputAdapter
+Converts Godot's `Input` singleton to typed `GameInput`:
+
+```gdscript
+func _process(_delta):
+    var inp := InputAdapter.read_input()  # Godot Input → GameInput
+    var result := CoreAPI.step(state, inp)
+```
+
+### ViewAdapter
+Applies `GameState` to Godot Nodes for rendering:
+
+```gdscript
+ViewAdapter.apply(state, self)  # Update node positions, animations
+ViewAdapter.interpolate(prev, next, t, self)  # Smooth rendering between ticks
+```
+
+### EventAdapter
+Consumes `GameEvent[]` and triggers presentation effects:
+
+```gdscript
+var event_adapter := EventAdapter.new()
+event_adapter.process_events(result.events, self)  # VFX, SFX, UI
+```
+
+The adapter registers asset paths:
+```gdscript
+event_adapter.sfx_registry["hit"] = "res://audio/sfx/hit.wav"
+event_adapter.vfx_registry["explosion"] = "res://vfx/explosion.tscn"
+```
 
 ## Scaling Patterns
 
@@ -318,3 +412,39 @@ When migrating:
 - Add entities when you have multiple game objects
 - Add systems when step() gets unwieldy
 - Migrate to Rust when you need performance
+
+### Scaling: Event Granularity
+
+Events can be categorized by their semantic level:
+
+**Semantic Events** (what happened):
+- `DamageApplied { entity_id, amount, new_health }`
+- `EntitySpawned { id, type, x, y }`
+- `LevelCompleted { score, time }`
+
+**Presentation Events** (how to show it):
+- `SfxRequested { key: "hit" }`
+- `VfxRequested { key: "explosion", x, y }`
+- `UiMessage { text_key: "game_over" }`
+
+#### Trade-offs
+
+| Approach | Pros | Cons |
+|----------|------|------|
+| **Semantic only** | Core doesn't know about assets; can swap audio/VFX packs without touching logic | EventAdapter must map semantic → presentation; more code in shell |
+| **Mixed (current)** | Simpler; core can request specific effects; less adapter logic | Core couples to asset keys; changing audio requires core changes |
+| **Presentation only** | Direct control; no mapping layer | Core becomes a presentation engine; loses semantic meaning |
+
+#### Recommendation
+
+- **Small projects / game jams**: Use mixed approach (current). Ship fast.
+- **Larger projects**: Migrate to semantic-only. Core emits `DamageApplied`, EventAdapter decides to play "hit.wav" based on damage type, entity, etc.
+- **Rollback/netcode**: Semantic events are safer - presentation can be re-derived from semantic events during resimulation.
+
+#### Migration Path
+
+When moving to semantic-only:
+1. Remove `SFX_REQUESTED`, `VFX_REQUESTED` from GameEvent enum
+2. Add semantic events for each game action
+3. Update EventAdapter to map semantic events to presentation
+4. Fixtures only assert semantic events (presentation is non-deterministic in replays anyway)
