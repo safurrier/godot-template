@@ -119,30 +119,62 @@ godot/tests/
 
 ## Data Contracts
 
-### State Dictionary
-Game state is a flat dictionary with primitives:
+### Serialization Layer
+
+The core uses **typed Resources** (`GameState`, `GameInput`) internally, but all data must serialize to JSON-compatible primitives for:
+- Fixture testing (JSON files)
+- Rust interop (serde)
+- Network replay
+
+**Serialized format (Dictionary):**
 ```gdscript
 {
     "tick": 0,           # Current simulation tick
-    "seed": 12345,       # RNG seed for reproducibility
-    "health": 100,       # Player health
-    "position_x": 0.0,   # Use primitives, not Vector2
-    "position_y": 0.0,
+    "seed_val": 12345,   # RNG seed for reproducibility
+    "rng_state": 0,      # Deterministic RNG position
 }
 ```
 
-**Rules:**
+**Typed format (Resource):**
+```gdscript
+var state := GameState.new()
+state.tick = 0
+state.seed_val = 12345
+state.rng_state = 0
+```
+
+### Serialization Rules
+
+When converting to Dictionary (`to_dict()`):
 - Only use: `int`, `float`, `String`, `bool`, `Array`, `Dictionary`
-- No Godot types: `Vector2`, `Node`, `Resource`
-- Flat structure preferred for easy serialization
+- No Godot types: `Vector2`, `Node`, `AudioStream`
+- Use `position_x`/`position_y` instead of `Vector2`
+
+**Why?** Dictionaries can be:
+1. Serialized to JSON for fixtures
+2. Passed to Rust via GDExtension
+3. Sent over network for multiplayer
+4. Recorded for deterministic replay
+
+### Adapters Bridge the Gap
+
+Adapters convert between serializable state and Godot presentation types:
+
+```
+Godot Input singleton  →  InputAdapter  →  GameInput (typed)
+GameState (typed)      →  ViewAdapter   →  Node positions (Vector2)
+GameEvent (typed)      →  EventAdapter  →  AudioStreamPlayer, VFX scenes
+```
+
+The **core** never touches `Input`, `Node`, `Vector2`, or other Godot types. Adapters do that translation at the boundary.
 
 ### Input Dictionary
-Per-tick input:
+Per-tick input (serialized form):
 ```gdscript
 {
     "delta": 1,          # Tick delta (usually 1)
     "action": "move",    # Player action
-    "direction_x": 1.0,  # Input direction
+    "direction_x": 1.0,  # Input direction (not Vector2)
     "direction_y": 0.0,
 }
 ```
@@ -268,6 +300,13 @@ The adapter registers asset paths:
 event_adapter.sfx_registry["hit"] = "res://audio/sfx/hit.wav"
 event_adapter.vfx_registry["explosion"] = "res://vfx/explosion.tscn"
 ```
+
+**Registry Design:** The registries use `Dictionary` with `String` keys and `String` values (resource paths). This is intentionally simple:
+- Keys are semantic identifiers from the core ("hit", "explosion")
+- Values are Godot resource paths
+- No typed wrapper needed - the simplicity aids debugging and hot-reloading
+
+For larger projects, consider a `Resource`-based registry that can be edited in the Godot inspector.
 
 ## Scaling Patterns
 
