@@ -1,6 +1,7 @@
 # res://scripts/run_fixtures.gd
 # Headless fixture runner for CI validation.
 # Runs all JSON fixtures in tests/fixtures/ and exits with appropriate code.
+# Supports both state and event assertions.
 extends SceneTree
 
 # Preload core modules (needed for headless execution)
@@ -8,6 +9,8 @@ const CoreAPIScript = preload("res://core/core_api.gd")
 const SchemaScript = preload("res://core/schema.gd")
 const GameStateScript = preload("res://core/resources/game_state.gd")
 const GameInputScript = preload("res://core/resources/game_input.gd")
+const GameEventScript = preload("res://core/resources/game_event.gd")
+const StepResultScript = preload("res://core/resources/step_result.gd")
 
 
 func _initialize():
@@ -58,24 +61,71 @@ func _run_fixture(path: String) -> bool:
 
 	var initial_state: Dictionary = parsed.get("initial_state", {})
 	var inp: Dictionary = parsed.get("input", {})
-	var expected: Dictionary = parsed.get("expected_state", {})
+	var expected_state: Dictionary = parsed.get("expected_state", {})
+	var expected_events: Array = parsed.get("expected_events", [])
 
-	var got := CoreAPIScript.step_dict(initial_state, inp)
+	# Run step and get full result (state + events)
+	var result := CoreAPIScript.step_dict(initial_state, inp)
+	var actual_state: Dictionary = result.get("state", {})
+	var actual_events: Array = result.get("events", [])
 
-	# Deep equality check using Schema helper
-	if not SchemaScript.dict_equals(got, expected):
+	# Normalize for comparison
+	actual_state = SchemaScript.normalize_dict(actual_state)
+	expected_state = SchemaScript.normalize_dict(expected_state)
+
+	# Validate state
+	if not SchemaScript.dict_equals(actual_state, expected_state):
 		push_error("[FIXTURE FAIL] %s" % path)
-		push_error("  expected: %s" % str(expected))
-		push_error("  got:      %s" % str(got))
+		push_error("  State mismatch:")
+		push_error("    expected: %s" % str(expected_state))
+		push_error("    actual:   %s" % str(actual_state))
 		return false
 
+	# Validate events (if expected_events provided)
+	if expected_events.size() > 0:
+		if not _events_match(actual_events, expected_events):
+			push_error("[FIXTURE FAIL] %s" % path)
+			push_error("  Events mismatch:")
+			push_error("    expected: %s" % str(expected_events))
+			push_error("    actual:   %s" % str(actual_events))
+			return false
+
 	# Verify Resource serialization round-trips correctly (dict -> Resource -> dict)
-	var state_roundtrip = GameStateScript.from_dict(got).to_dict()
-	if not SchemaScript.dict_equals(got, state_roundtrip):
+	var state_roundtrip = GameStateScript.from_dict(actual_state).to_dict()
+	state_roundtrip = SchemaScript.normalize_dict(state_roundtrip)
+	if not SchemaScript.dict_equals(actual_state, state_roundtrip):
 		push_error("[FIXTURE FAIL] GameState round-trip mismatch: %s" % path)
-		push_error("  original:   %s" % str(got))
+		push_error("  original:   %s" % str(actual_state))
 		push_error("  roundtrip:  %s" % str(state_roundtrip))
 		return false
 
 	print("[FIXTURE OK] %s" % path.get_file())
+	return true
+
+
+func _events_match(actual: Array, expected: Array) -> bool:
+	if actual.size() != expected.size():
+		return false
+
+	for i in range(expected.size()):
+		var exp_event: Dictionary = expected[i]
+		var act_event: Dictionary = actual[i]
+
+		# Check type matches
+		if exp_event.get("type") != act_event.get("type"):
+			return false
+
+		# Check payload (if specified in expected)
+		var exp_payload: Dictionary = exp_event.get("payload", {})
+		var act_payload: Dictionary = act_event.get("payload", {})
+
+		for key in exp_payload.keys():
+			if not act_payload.has(key):
+				return false
+			# Normalize for comparison
+			var exp_val = SchemaScript.normalize_value(exp_payload[key])
+			var act_val = SchemaScript.normalize_value(act_payload[key])
+			if exp_val != act_val:
+				return false
+
 	return true

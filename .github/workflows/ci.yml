@@ -49,6 +49,14 @@ jobs:
           mkdir -p godot/addons/my_ext/bin/linux/debug
           cp rust/target/debug/libmy_ext.so godot/addons/my_ext/bin/linux/debug/libmy_ext.so
 
+      - name: Godot import (generate class cache)
+        run: |
+          godot --headless --import --path godot --quit
+
       - name: Headless smoke test
         run: |
           godot --headless --path godot --script res://scripts/smoke_test.gd
+
+      - name: Fixture tests
+        run: |
+          godot --headless --path godot --script res://scripts/run_fixtures.gd
