@@ -1,32 +1,51 @@
 # Project Structure
 
-This template splits the project into two top-level roots: `godot/` and `rust/`.
+This template uses **GDScript-first gameplay** with **optional Rust acceleration**.
 
 ## Recommended Layout
 
 ```
 repo/
-├── godot/                       # Godot project root
-│   ├── project.godot             # Project settings
-│   ├── scenes/                   # Scene files (.tscn)
-│   ├── scripts/                  # GDScript files (.gd)
+├── godot/                        # Godot project root
+│   ├── project.godot              # Project settings
+│   ├── core/                      # Deterministic seam (GDScript)
+│   │   ├── core_api.gd            # step(), decide(), generate()
+│   │   ├── schema.gd              # JSON normalization helpers
+│   │   └── sim_clock.gd           # Batch simulation driver
+│   ├── scenes/                    # Scene files (.tscn)
+│   ├── scripts/                   # GDScript files (.gd)
+│   │   ├── Main.gd                # Game script (uses CoreAPI)
+│   │   ├── smoke_test.gd          # Headless smoke test
+│   │   └── run_fixtures.gd        # Fixture test runner
+│   ├── tests/
+│   │   └── fixtures/              # Golden test JSON files
+│   │       └── step_basic.json
 │   └── addons/
-│       └── my_ext/               # GDExtension wrapper + binaries
+│       └── my_ext/                # GDExtension (optional)
 │           ├── my_ext.gdextension
 │           └── bin/linux/debug/libmy_ext.so
-├── rust/                         # Rust workspace
+├── rust/                          # Optional Rust acceleration
 │   ├── Cargo.toml
-│   ├── core/                     # Pure Rust logic + tests
-│   └── gdext_bridge/             # Thin GDExtension bridge
+│   ├── core/                      # Pure Rust logic + tests
+│   └── gdext_bridge/              # Thin GDExtension bridge
+├── docker/
+│   ├── Dockerfile                 # Dev container with all tools
+│   └── docker-compose.yml
 ├── docs/
 └── README.md
 ```
 
 ## Key Ideas
 
-### Fast Core, Thin Bridge
-- **Core**: deterministic logic, easy to test.
-- **Bridge**: minimal marshaling between Godot and Rust.
+### GDScript-First with Deterministic Seams
+- **`godot/core/`**: All game logic flows through `CoreAPI.step(state, input)`
+- **Pure-data in/out**: Dictionaries only, no Node references, no side effects
+- **Fixture testing**: JSON files define input → expected output
+
+### Optional Rust Acceleration
+- **Core**: deterministic logic, easy to test with `cargo test`
+- **Bridge**: minimal marshaling between Godot and Rust
+- **Migration path**: Swap GDScript implementation for Rust behind the seam
 
 ### Keep Scripts Close to Scenes
 ```
