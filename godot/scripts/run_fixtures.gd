@@ -6,6 +6,9 @@ extends SceneTree
 # Preload core modules (needed for headless execution)
 const CoreAPIScript = preload("res://core/core_api.gd")
 const SchemaScript = preload("res://core/schema.gd")
+const GameStateScript = preload("res://core/resources/game_state.gd")
+const GameInputScript = preload("res://core/resources/game_input.gd")
+
 
 func _initialize():
 	var failures := 0
@@ -40,6 +43,7 @@ func _initialize():
 		print("[FIXTURES OK] %d passed" % passed)
 		quit(0)
 
+
 func _run_fixture(path: String) -> bool:
 	var f := FileAccess.open(path, FileAccess.READ)
 	if f == null:
@@ -56,13 +60,21 @@ func _run_fixture(path: String) -> bool:
 	var inp: Dictionary = parsed.get("input", {})
 	var expected: Dictionary = parsed.get("expected_state", {})
 
-	var got := CoreAPIScript.step(initial_state, inp)
+	var got := CoreAPIScript.step_dict(initial_state, inp)
 
 	# Deep equality check using Schema helper
 	if not SchemaScript.dict_equals(got, expected):
 		push_error("[FIXTURE FAIL] %s" % path)
 		push_error("  expected: %s" % str(expected))
 		push_error("  got:      %s" % str(got))
+		return false
+
+	# Verify Resource serialization round-trips correctly (dict -> Resource -> dict)
+	var state_roundtrip = GameStateScript.from_dict(got).to_dict()
+	if not SchemaScript.dict_equals(got, state_roundtrip):
+		push_error("[FIXTURE FAIL] GameState round-trip mismatch: %s" % path)
+		push_error("  original:   %s" % str(got))
+		push_error("  roundtrip:  %s" % str(state_roundtrip))
 		return false
 
 	print("[FIXTURE OK] %s" % path.get_file())

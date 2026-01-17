@@ -25,29 +25,31 @@ make gdscript-ci # Smoke + fixtures (GDScript only)
 
 ## Architecture
 
-**GDScript-first with deterministic seams** + **optional Rust acceleration**:
+**GDScript-first with deterministic seams** + **typed Resources** + **optional Rust acceleration**.
 
-### GDScript Core (Primary)
+See `docs/architecture.md` for full details on scaling patterns and Rust migration.
+
+### Key Files
 - `godot/core/core_api.gd` - Deterministic seam: `step()`, `decide()`, `generate()`
-- `godot/core/schema.gd` - JSON normalization and validation helpers
-- `godot/core/sim_clock.gd` - Batch simulation driver for replays/testing
+- `godot/core/resources/` - Typed state: `GameState`, `GameInput`
+- `godot/core/schema.gd` - JSON normalization helpers
 - `godot/tests/fixtures/` - Golden test JSON files
 
-### Rust Extension (Optional)
-- `rust/core/` - Pure Rust game logic, no Godot dependency. Fast `cargo test`.
-- `rust/gdext_bridge/` - Minimal GDExtension wrapper, exposes Rust to Godot.
-
-### Key Pattern: CoreAPI Seam
-All game logic flows through `CoreAPI.step(state, input) -> new_state`:
+### CoreAPI Pattern
+All game logic flows through typed Resources with Dictionary adapters:
 ```gdscript
-# Pure-data in/out, no side effects
-var next_state = CoreAPIScript.step(current_state, {"delta": 1})
+# Dictionary API (fixtures, JSON interop)
+var next = CoreAPI.step({"tick": 0, "seed_val": 0}, {"delta": 1})
+
+# Typed API (game code)
+var state = GameState.from_dict({"tick": 0})
+var next_state = CoreAPI.step_typed(state, input)
 ```
 
 This enables:
+- **Type safety**: Resources provide autocomplete and validation
 - **Fixture testing**: JSON files define input/expected output
-- **Deterministic replays**: Same inputs = same outputs
-- **Future Rust migration**: Swap implementation behind the seam
+- **Rust migration**: Resources map 1:1 to Rust structs
 
 ## Key Commands
 
@@ -92,6 +94,9 @@ godot/
     core_api.gd                    # step(), decide(), generate()
     schema.gd                      # JSON normalization helpers
     sim_clock.gd                   # Batch simulation driver
+    resources/                     # Typed state classes
+      game_state.gd                # GameState Resource
+      game_input.gd                # GameInput Resource
   scenes/
     Main.tscn                      # Main game scene
   scripts/

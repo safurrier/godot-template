@@ -23,7 +23,7 @@ copy-ext: build-ext
 	@mkdir -p $(dir $(EXT_DEST_DEBUG))
 	@cp $(EXT_LIB_DEBUG) $(EXT_DEST_DEBUG)
 
-smoke: copy-ext
+smoke: copy-ext import
 	$(GODOT) --headless --path godot --script res://scripts/smoke_test.gd
 
 ci: fmt lint test build-ext smoke
@@ -32,7 +32,13 @@ check: ci
 
 # GDScript validation
 #####################
-fixtures:
+
+# Import step generates .godot/global_script_class_cache.cfg
+# This ensures class_name declarations are resolved in headless mode
+import:
+	$(GODOT) --headless --import --path godot --quit
+
+fixtures: import
 	$(GODOT) --headless --path godot --script res://scripts/run_fixtures.gd
 
 gdscript-ci: smoke fixtures

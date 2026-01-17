@@ -7,8 +7,8 @@ func _initialize() -> void:
 	var err := ""
 
 	# Test 1: CoreAPI.step works (GDScript seam)
-	var s := {"tick": 0}
-	var out: Dictionary = CoreAPIScript.step(s, {"delta": 1})
+	var s := {"tick": 0, "seed_val": 0}
+	var out: Dictionary = CoreAPIScript.step_dict(s, {"delta": 1})
 	if out.get("tick", -1) != 1:
 		ok = false
 		err = "CoreAPI.step invariant failed: expected tick=1, got=%s" % str(out)

@@ -1,5 +1,5 @@
 {
-  "initial_state": { "tick": 5 },
+  "initial_state": { "tick": 5, "seed_val": 0 },
   "input": {},
-  "expected_state": { "tick": 6 }
+  "expected_state": { "tick": 6, "seed_val": 0 }
 }

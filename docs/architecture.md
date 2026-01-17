@@ -174,3 +174,147 @@ static func step(state: Dictionary, inp: Dictionary) -> Dictionary:
 ```
 
 Run the same fixtures against both implementations to verify equivalence.
+
+## Scaling Patterns
+
+As your game grows, evolve the architecture in phases. Each phase builds on the previous while maintaining the deterministic seam contract.
+
+### Current: Typed Resources
+
+The template now uses typed Resource classes for state and input:
+
+```gdscript
+# godot/core/resources/game_state.gd
+class_name GameState extends Resource
+
+@export var tick: int = 0
+@export var seed_val: int = 0
+
+static func from_dict(data: Dictionary):
+    # Convert from JSON/Dictionary
+    ...
+
+func to_dict() -> Dictionary:
+    # Convert to JSON/Dictionary
+    return {"tick": tick, "seed_val": seed_val}
+```
+
+**Benefits:**
+- Autocomplete and type checking in editor
+- Explicit field definitions (no magic strings)
+- 1:1 mapping to Rust structs
+- Resources still serialize through `to_dict()` for fixtures
+
+**Usage:**
+```gdscript
+# Dictionary API (for fixtures, JSON interop)
+var next = CoreAPI.step({"tick": 0, "seed_val": 0}, {"delta": 1})
+
+# Typed API (for game code)
+var state = GameState.from_dict({"tick": 0})
+var input = GameInput.from_dict({"delta": 1})
+var next_state = CoreAPI.step_typed(state, input)
+```
+
+### Phase 2: Entity Resources
+
+When you need multiple game objects, add an Entity Resource:
+
+```gdscript
+# godot/core/resources/entity.gd
+class_name Entity extends Resource
+
+@export var id: int = 0
+@export var position_x: float = 0.0
+@export var position_y: float = 0.0
+@export var health: int = 100
+
+static func from_dict(data: Dictionary):
+    var e = Entity.new()
+    e.id = int(data.get("id", 0))
+    e.position_x = float(data.get("position_x", 0.0))
+    e.position_y = float(data.get("position_y", 0.0))
+    e.health = int(data.get("health", 100))
+    return e
+
+func to_dict() -> Dictionary:
+    return {
+        "id": id,
+        "position_x": position_x,
+        "position_y": position_y,
+        "health": health
+    }
+```
+
+Update GameState to include entities:
+```gdscript
+@export var entities: Dictionary = {}  # id -> Entity
+
+func to_dict() -> Dictionary:
+    var ents = {}
+    for id in entities:
+        ents[str(id)] = entities[id].to_dict()
+    return {"tick": tick, "seed_val": seed_val, "entities": ents}
+```
+
+### Phase 3: Systems Decomposition
+
+When `step()` grows beyond ~100 lines, decompose into systems:
+
+```gdscript
+# godot/core/systems/physics_system.gd
+class_name PhysicsSystem
+
+static func step(state: GameState, input: GameInput) -> void:
+    for entity in state.entities.values():
+        entity.position_x += entity.velocity_x * input.delta
+        entity.position_y += entity.velocity_y * input.delta
+```
+
+```gdscript
+# godot/core/core_api.gd
+static func step_typed(state, inp):
+    var next = state.duplicate_state()
+    PhysicsSystem.step(next, inp)
+    CombatSystem.step(next, inp)
+    AISystem.step(next, inp)
+    return next
+```
+
+**When to add systems:**
+- Multiple distinct domains (physics, combat, AI)
+- Code becomes hard to navigate
+- Different tick rates needed (physics every frame, AI every 10 frames)
+
+### Rust Migration Path
+
+Each pattern maps directly to Rust:
+
+| GDScript | Rust |
+|----------|------|
+| `class_name GameState extends Resource` | `struct GameState` |
+| `@export var tick: int` | `pub tick: i32` |
+| `static func from_dict(...)` | `impl From<HashMap<...>>` |
+| `func to_dict()` | `impl Into<HashMap<...>>` |
+| `PhysicsSystem.step(state, input)` | `physics::step(&mut state, &input)` |
+
+When migrating:
+1. Implement the Rust struct matching the Resource
+2. Add `serde` for JSON serialization
+3. Expose through GDExtension bridge
+4. Run same fixtures to verify equivalence
+5. Swap implementation in `CoreAPI.step()`
+
+### What to Skip
+
+**Don't add until you need it:**
+- Full ECS (Bevy-style) - overkill for most games
+- Node-based state - harder to migrate
+- Complex inheritance - Rust prefers composition
+- Generic systems framework - YAGNI
+
+**Keep it simple:**
+- Start with typed Resources (current state)
+- Add entities when you have multiple game objects
+- Add systems when step() gets unwieldy
+- Migrate to Rust when you need performance
