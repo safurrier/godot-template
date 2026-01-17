@@ -1,6 +1,6 @@
 # CLAUDE.md - Godot + Rust GDExtension Project
 
-This is a Godot 4 + Rust GDExtension template following the "fast core, thin bridge" architecture.
+This is a Godot 4 template with **GDScript-first gameplay** and **optional Rust acceleration**.
 
 ## Quick Start
 
@@ -11,47 +11,75 @@ make dev-validate
 
 # Or just run CI in container
 make dev-ci
+
+# Run GDScript fixture tests
+make dev-fixtures
 ```
 
 ### Local Development (requires Godot on PATH)
 ```bash
 make ci          # Full validation: fmt + lint + test + build + smoke
-make test        # Just Rust tests (fast, ~0.00s)
-make smoke       # Build extension + run Godot smoke test
+make fixtures    # Run GDScript fixture tests
+make gdscript-ci # Smoke + fixtures (GDScript only)
 ```
 
 ## Architecture
 
-**90% pure Rust core** + **thin GDExtension bridge**:
+**GDScript-first with deterministic seams** + **optional Rust acceleration**:
 
+### GDScript Core (Primary)
+- `godot/core/core_api.gd` - Deterministic seam: `step()`, `decide()`, `generate()`
+- `godot/core/schema.gd` - JSON normalization and validation helpers
+- `godot/core/sim_clock.gd` - Batch simulation driver for replays/testing
+- `godot/tests/fixtures/` - Golden test JSON files
+
+### Rust Extension (Optional)
 - `rust/core/` - Pure Rust game logic, no Godot dependency. Fast `cargo test`.
 - `rust/gdext_bridge/` - Minimal GDExtension wrapper, exposes Rust to Godot.
-- `godot/` - Godot project with scenes and GDScript.
 
-Most changes happen in `rust/core/` where iteration is fast and tests are pure Rust.
+### Key Pattern: CoreAPI Seam
+All game logic flows through `CoreAPI.step(state, input) -> new_state`:
+```gdscript
+# Pure-data in/out, no side effects
+var next_state = CoreAPIScript.step(current_state, {"delta": 1})
+```
+
+This enables:
+- **Fixture testing**: JSON files define input/expected output
+- **Deterministic replays**: Same inputs = same outputs
+- **Future Rust migration**: Swap implementation behind the seam
 
 ## Key Commands
 
 | Command | Description |
 |---------|-------------|
 | `make ci` | Full local CI: fmt + lint + test + build-ext + smoke |
-| `make test` | Run `cargo test -p core` (fast, covers game logic) |
+| `make fixtures` | Run GDScript fixture tests |
+| `make gdscript-ci` | Smoke + fixtures (GDScript validation) |
+| `make test` | Run `cargo test -p core` (Rust tests) |
 | `make smoke` | Build extension and run Godot headless smoke test |
 | `make dev-ci` | Run `make ci` inside Docker container |
+| `make dev-fixtures` | Run fixture tests in Docker |
 | `make dev-validate` | Check tools + run full CI in container |
 | `make dev-shell` | Interactive bash in container |
 
 ## Validation Loop
 
-When making changes, run this sequence:
+### GDScript Changes (Most Common)
+1. **Edit code** in `godot/core/` or `godot/scripts/`
+2. **Add fixture test** in `godot/tests/fixtures/` (if adding logic)
+3. **Run fixtures**: `make dev-fixtures`
+4. **Full validation**: `make dev-ci`
 
-1. **Edit code** in `rust/core/` (most changes)
+### Rust Changes
+1. **Edit code** in `rust/core/`
 2. **Run tests**: `cd rust && cargo test -p core`
-3. **Full validation**: `make dev-ci` or `make ci`
+3. **Full validation**: `make dev-ci`
 
 Expected output:
 ```
-test tests::ping_formats ... ok
+[FIXTURE OK] step_basic.json
+[FIXTURES OK] 3 passed
 [SMOKE OK]
 ```
 
@@ -60,32 +88,55 @@ test tests::ping_formats ... ok
 ```
 godot/
   project.godot                    # Godot project config
-  addons/my_ext/
-    my_ext.gdextension            # Extension manifest (loads .so/.dll/.dylib)
-    bin/                          # Built extension binaries per platform
+  core/                            # GDScript deterministic seam
+    core_api.gd                    # step(), decide(), generate()
+    schema.gd                      # JSON normalization helpers
+    sim_clock.gd                   # Batch simulation driver
+  scenes/
+    Main.tscn                      # Main game scene
   scripts/
-    smoke_test.gd                 # Headless smoke test script
+    Main.gd                        # Game script (uses CoreAPI)
+    smoke_test.gd                  # Headless smoke test
+    run_fixtures.gd                # Fixture test runner
+  tests/
+    fixtures/                      # Golden test JSON files
+      step_basic.json
+  addons/my_ext/                   # Rust extension (optional)
+    my_ext.gdextension
+    bin/                           # Built binaries per platform
 
-rust/
-  Cargo.toml                      # Workspace (members: core, gdext_bridge)
+rust/                              # Optional Rust acceleration
+  Cargo.toml                       # Workspace (members: core, gdext_bridge)
   core/
-    src/lib.rs                    # Pure Rust game logic + tests
+    src/lib.rs                     # Pure Rust game logic + tests
   gdext_bridge/
-    src/lib.rs                    # GDExtension entry + Godot-exposed classes
+    src/lib.rs                     # GDExtension entry + Godot-exposed classes
 
 docker/
-  Dockerfile                      # Rust 1.92 + Godot 4.5.1 + Python/uv
-  docker-compose.yml              # Dev container config
+  Dockerfile                       # Rust 1.92 + Godot 4.5.1 + Python/uv
+  docker-compose.yml               # Dev container config
 ```
 
 ## Adding New Functionality
 
-### Adding game logic (most common)
+### Adding game logic (GDScript - most common)
+1. Add logic to `godot/core/core_api.gd` in the `step()` function
+2. Create a fixture test in `godot/tests/fixtures/my_test.json`:
+   ```json
+   {
+     "initial_state": { "tick": 0 },
+     "input": { "delta": 1 },
+     "expected_state": { "tick": 1 }
+   }
+   ```
+3. Run `make dev-fixtures` to validate
+
+### Adding Rust logic (optional)
 1. Add code to `rust/core/src/lib.rs`
 2. Add unit tests in the same file
 3. Run `cargo test -p core`
 
-### Exposing to Godot
+### Exposing Rust to Godot
 1. Add a method in `rust/gdext_bridge/src/lib.rs`
 2. Use `#[func]` attribute to expose it
 3. Call from GDScript via `ClassName.method_name()`
