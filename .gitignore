@@ -15,7 +15,6 @@ docker/.env
 .pytest_cache/*
 .ruff_cache/*
 .aider*
-CLAUDE.md
 
 # Godot project artifacts
 .godot/
