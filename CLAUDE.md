@@ -153,3 +153,60 @@ This is cosmetic - Godot runs fine headless without font rendering.
 2. **Test in core** - Pure Rust tests are fast and reliable
 3. **Validate often** - Run `make dev-ci` before committing
 4. **Use container** - Ensures consistent environment across machines
+
+## Plan Persistence
+
+Plans are stored in `.ai/plans/` with the format:
+```
+.ai/plans/$TIMESTAMP-$description/
+  Spec.md           # Requirements and design decisions
+  Implementation.md # Concrete file implementations
+  Todo.md           # Task checklist with phases
+```
+
+### Creating a Plan
+When asked to plan a feature, create a timestamped directory:
+```bash
+mkdir -p .ai/plans/$(date +%Y-%m-%d)-feature-name
+```
+
+Then create `Spec.md`, `Implementation.md`, and `Todo.md` with:
+- **Spec.md**: Goals, non-goals, design decisions, acceptance criteria
+- **Implementation.md**: Concrete code examples and file contents
+- **Todo.md**: Phased task checklist
+
+### Resuming Work
+
+When asked to "resume" or continue work:
+
+1. **Check the current branch**: `git branch --show-current`
+2. **Review recent commits**: `git log --oneline -5`
+3. **Find matching plan**: Look in `.ai/plans/` for plans matching the branch name or recent commit descriptions
+4. **Read the plan files**:
+   ```bash
+   ls .ai/plans/
+   cat .ai/plans/$MATCHING_PLAN/Todo.md
+   ```
+5. **Identify incomplete tasks** from `Todo.md` (items still marked `[ ]`)
+6. **Continue implementation** from where it left off
+
+Example resume workflow:
+```bash
+# 1. Check context
+git branch --show-current
+git log --oneline -5
+
+# 2. Find plan
+ls .ai/plans/
+
+# 3. Read plan status
+cat .ai/plans/2026-01-16-gdscript-first-template/Todo.md
+
+# 4. Continue from first incomplete task
+```
+
+### Plan Naming Convention
+
+Use descriptive names that match branch names when possible:
+- `2026-01-16-gdscript-first-template/` → branch `feat/gdscript-first-template`
+- `2026-01-16-dev-environment-validation-loop/` → branch `feat/validation-loop`
