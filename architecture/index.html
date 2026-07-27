@@ -662,9 +662,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#stepstate-input-new_state" class="md-nav__link">
+  <a href="#stepstate-input-stepresult" class="md-nav__link">
     <span class="md-ellipsis">
-      step(state, input) -&gt; new_state
+      step(state, input) -&gt; StepResult
     </span>
   </a>
   
@@ -713,9 +713,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#state-dictionary" class="md-nav__link">
+  <a href="#serialization-layer" class="md-nav__link">
     <span class="md-ellipsis">
-      State Dictionary
+      Serialization Layer
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serialization-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Serialization Rules
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adapters-bridge-the-gap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adapters Bridge the Gap
     </span>
   </a>
   
@@ -750,6 +768,90 @@
       Migration to Rust
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deterministic-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deterministic Events
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deterministic Events">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#event-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      Event Types
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating Events
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing Events
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adapters
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Adapters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inputadapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      InputAdapter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#viewadapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      ViewAdapter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eventadapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      EventAdapter
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -805,6 +907,48 @@
       What to Skip
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scaling-event-granularity" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scaling: Event Granularity
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scaling: Event Granularity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#trade-offs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Trade-offs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommendation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recommendation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migration-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration Path
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -883,13 +1027,17 @@
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">        </span><span class="o">...</span>
 </code></pre></div></p>
 <h2 id="the-three-seams">The Three Seams<a class="headerlink" href="#the-three-seams" title="Permanent link">&para;</a></h2>
-<h3 id="stepstate-input-new_state"><code>step(state, input) -&gt; new_state</code><a class="headerlink" href="#stepstate-input-new_state" title="Permanent link">&para;</a></h3>
-<p>The main simulation tick. Advances game state by one frame.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">var</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="s2">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">}</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">var</span><span class="w"> </span><span class="n">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="s2">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;attack&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">}</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">var</span><span class="w"> </span><span class="n">next_state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CoreAPI</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">input</span><span class="p">)</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># next_state = {&quot;tick&quot;: 1, &quot;health&quot;: 100, ...}</span>
+<h3 id="stepstate-input-stepresult"><code>step(state, input) -&gt; StepResult</code><a class="headerlink" href="#stepstate-input-stepresult" title="Permanent link">&para;</a></h3>
+<p>The main simulation tick. Returns <strong>both</strong> the next state <strong>and</strong> deterministic events.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">var</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GameState</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s2">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;seed_val&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;rng_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">})</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">var</span><span class="w"> </span><span class="n">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GameInput</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s2">&quot;delta&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">})</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">var</span><span class="w"> </span><span class="n">result</span><span class="p">:</span><span class="w"> </span><span class="n">StepResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CoreAPI</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">input</span><span class="p">)</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># result.state = GameState with tick=1</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="c1"># result.events = [GameEvent.tick_advanced(0, 1)]</span>
 </code></pre></div>
+<p>Events describe "what happened" during the step - they're deterministic outputs, not side effects.
+This enables replay systems to re-emit the same events given the same inputs.</p>
 <h3 id="decidestate-decision"><code>decide(state) -&gt; decision</code><a class="headerlink" href="#decidestate-decision" title="Permanent link">&para;</a></h3>
 <p>AI decision-making. Returns what action to take given current state.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">var</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="s2">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;enemies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="o">...</span><span class="p">],</span><span class="w"> </span><span class="s2">&quot;player_pos&quot;</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Vector2</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">)}</span>
@@ -903,38 +1051,69 @@
 </code></pre></div>
 <h2 id="file-organization">File Organization<a class="headerlink" href="#file-organization" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>godot/core/
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>├── core_api.gd     # The three seams: step, decide, generate
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>├── schema.gd       # JSON normalization, validation helpers
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>└── sim_clock.gd    # Batch simulation driver
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>godot/tests/
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>└── fixtures/       # JSON test files
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    ├── step_basic.json
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    └── step_edge_cases.json
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>├── core_api.gd           # The three seams: step, decide, generate
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>├── schema.gd             # JSON normalization, validation helpers
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>├── sim_clock.gd          # Batch simulation driver
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>└── resources/
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    ├── game_state.gd     # Typed state with RNG
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    ├── game_input.gd     # Typed input
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    ├── game_event.gd     # Deterministic events
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    └── step_result.gd    # step() return type (state + events)
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>godot/adapters/
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>├── input_adapter.gd      # Godot Input → GameInput
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>├── view_adapter.gd       # GameState → Node updates
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>└── event_adapter.gd      # GameEvent → VFX/SFX/UI
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>godot/tests/
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>└── fixtures/             # JSON test files
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>    ├── step_basic.json
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>    └── step_with_events.json
 </code></pre></div>
 <h2 id="data-contracts">Data Contracts<a class="headerlink" href="#data-contracts" title="Permanent link">&para;</a></h2>
-<h3 id="state-dictionary">State Dictionary<a class="headerlink" href="#state-dictionary" title="Permanent link">&para;</a></h3>
-<p>Game state is a flat dictionary with primitives:
+<h3 id="serialization-layer">Serialization Layer<a class="headerlink" href="#serialization-layer" title="Permanent link">&para;</a></h3>
+<p>The core uses <strong>typed Resources</strong> (<code>GameState</code>, <code>GameInput</code>) internally, but all data must serialize to JSON-compatible primitives for:
+- Fixture testing (JSON files)
+- Rust interop (serde)
+- Network replay</p>
+<p><strong>Serialized format (Dictionary):</strong>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="s2">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">           </span><span class="c1"># Current simulation tick</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12345</span><span class="p">,</span><span class="w">       </span><span class="c1"># RNG seed for reproducibility</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="s2">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w">       </span><span class="c1"># Player health</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="s2">&quot;position_x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w">   </span><span class="c1"># Use primitives, not Vector2</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="s2">&quot;position_y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="p">}</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="s2">&quot;seed_val&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12345</span><span class="p">,</span><span class="w">   </span><span class="c1"># RNG seed for reproducibility</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="s2">&quot;rng_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">      </span><span class="c1"># Deterministic RNG position</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="p">}</span>
 </code></pre></div></p>
-<p><strong>Rules:</strong>
+<p><strong>Typed format (Resource):</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">var</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">GameState</span><span class="o">.</span><span class="n">new</span><span class="p">()</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">state</span><span class="o">.</span><span class="n">tick</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">state</span><span class="o">.</span><span class="n">seed_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12345</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">state</span><span class="o">.</span><span class="n">rng_state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+</code></pre></div></p>
+<h3 id="serialization-rules">Serialization Rules<a class="headerlink" href="#serialization-rules" title="Permanent link">&para;</a></h3>
+<p>When converting to Dictionary (<code>to_dict()</code>):
 - Only use: <code>int</code>, <code>float</code>, <code>String</code>, <code>bool</code>, <code>Array</code>, <code>Dictionary</code>
-- No Godot types: <code>Vector2</code>, <code>Node</code>, <code>Resource</code>
-- Flat structure preferred for easy serialization</p>
+- No Godot types: <code>Vector2</code>, <code>Node</code>, <code>AudioStream</code>
+- Use <code>position_x</code>/<code>position_y</code> instead of <code>Vector2</code></p>
+<p><strong>Why?</strong> Dictionaries can be:
+1. Serialized to JSON for fixtures
+2. Passed to Rust via GDExtension
+3. Sent over network for multiplayer
+4. Recorded for deterministic replay</p>
+<h3 id="adapters-bridge-the-gap">Adapters Bridge the Gap<a class="headerlink" href="#adapters-bridge-the-gap" title="Permanent link">&para;</a></h3>
+<p>Adapters convert between serializable state and Godot presentation types:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>Godot Input singleton  →  InputAdapter  →  GameInput (typed)
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>GameState (typed)      →  ViewAdapter   →  Node positions (Vector2)
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>GameEvent (typed)      →  EventAdapter  →  AudioStreamPlayer, VFX scenes
+</code></pre></div>
+<p>The <strong>core</strong> never touches <code>Input</code>, <code>Node</code>, <code>Vector2</code>, or other Godot types. Adapters do that translation at the boundary.</p>
 <h3 id="input-dictionary">Input Dictionary<a class="headerlink" href="#input-dictionary" title="Permanent link">&para;</a></h3>
-<p>Per-tick input:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">{</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="s2">&quot;delta&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">          </span><span class="c1"># Tick delta (usually 1)</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="s2">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;move&quot;</span><span class="p">,</span><span class="w">    </span><span class="c1"># Player action</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="s2">&quot;direction_x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w">  </span><span class="c1"># Input direction</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="s2">&quot;direction_y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">}</span>
+<p>Per-tick input (serialized form):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">{</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="s2">&quot;delta&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">          </span><span class="c1"># Tick delta (usually 1)</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="s2">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;move&quot;</span><span class="p">,</span><span class="w">    </span><span class="c1"># Player action</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="s2">&quot;direction_x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w">  </span><span class="c1"># Input direction (not Vector2)</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="s2">&quot;direction_y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="p">}</span>
 </code></pre></div></p>
 <h2 id="testing-workflow">Testing Workflow<a class="headerlink" href="#testing-workflow" title="Permanent link">&para;</a></h2>
 <ol>
@@ -942,51 +1121,109 @@
 <li><strong>Create a fixture</strong> in <code>godot/tests/fixtures/my_test.json</code></li>
 <li><strong>Run tests</strong>: <code>make dev-fixtures</code></li>
 </ol>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1">// godot/tests/fixtures/attack_reduces_health.json</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="p">{</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="nt">&quot;initial_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span><span class="nt">&quot;input&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;take_damage&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;damage&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="nt">&quot;expected_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">75</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1">// godot/tests/fixtures/attack_reduces_health.json</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="p">{</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">  </span><span class="nt">&quot;initial_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span><span class="nt">&quot;input&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;take_damage&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;damage&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">  </span><span class="nt">&quot;expected_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">75</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="migration-to-rust">Migration to Rust<a class="headerlink" href="#migration-to-rust" title="Permanent link">&para;</a></h2>
 <p>When performance matters, implement the seam in Rust:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1">// rust/core/src/lib.rs</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">pub</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="n">state</span><span class="p">:</span><span class="w"> </span><span class="nc">HashMap</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="n">Value</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="nc">HashMap</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="n">Value</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">HashMap</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="n">Value</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">clone</span><span class="p">();</span>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">delta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;delta&quot;</span><span class="p">).</span><span class="n">unwrap_or</span><span class="p">(</span><span class="o">&amp;</span><span class="n">Value</span><span class="p">::</span><span class="n">Int</span><span class="p">(</span><span class="mi">1</span><span class="p">)).</span><span class="n">as_i64</span><span class="p">().</span><span class="n">unwrap</span><span class="p">();</span>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">tick</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">next</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;tick&quot;</span><span class="p">).</span><span class="n">unwrap_or</span><span class="p">(</span><span class="o">&amp;</span><span class="n">Value</span><span class="p">::</span><span class="n">Int</span><span class="p">(</span><span class="mi">0</span><span class="p">)).</span><span class="n">as_i64</span><span class="p">().</span><span class="n">unwrap</span><span class="p">();</span>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="n">next</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&quot;tick&quot;</span><span class="p">.</span><span class="n">to_string</span><span class="p">(),</span><span class="w"> </span><span class="n">Value</span><span class="p">::</span><span class="n">Int</span><span class="p">(</span><span class="n">tick</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">delta</span><span class="p">));</span>
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="n">next</span>
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1">// rust/core/src/lib.rs</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">pub</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="n">state</span><span class="p">:</span><span class="w"> </span><span class="nc">HashMap</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="n">Value</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="nc">HashMap</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="n">Value</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">HashMap</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="n">Value</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">clone</span><span class="p">();</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">delta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;delta&quot;</span><span class="p">).</span><span class="n">unwrap_or</span><span class="p">(</span><span class="o">&amp;</span><span class="n">Value</span><span class="p">::</span><span class="n">Int</span><span class="p">(</span><span class="mi">1</span><span class="p">)).</span><span class="n">as_i64</span><span class="p">().</span><span class="n">unwrap</span><span class="p">();</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">tick</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">next</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;tick&quot;</span><span class="p">).</span><span class="n">unwrap_or</span><span class="p">(</span><span class="o">&amp;</span><span class="n">Value</span><span class="p">::</span><span class="n">Int</span><span class="p">(</span><span class="mi">0</span><span class="p">)).</span><span class="n">as_i64</span><span class="p">().</span><span class="n">unwrap</span><span class="p">();</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">    </span><span class="n">next</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&quot;tick&quot;</span><span class="p">.</span><span class="n">to_string</span><span class="p">(),</span><span class="w"> </span><span class="n">Value</span><span class="p">::</span><span class="n">Int</span><span class="p">(</span><span class="n">tick</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">delta</span><span class="p">));</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">    </span><span class="n">next</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="p">}</span>
 </code></pre></div>
 <p>Then update the GDScript seam to dispatch:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">static</span><span class="w"> </span><span class="k">func</span><span class="w"> </span><span class="n">step</span><span class="p">(</span><span class="n">state</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="p">,</span><span class="w"> </span><span class="n">inp</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="p">:</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">use_rust</span><span class="p">():</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">        </span><span class="k">var</span><span class="w"> </span><span class="n">rust_core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ClassDB</span><span class="o">.</span><span class="n">instantiate</span><span class="p">(</span><span class="s2">&quot;RustCore&quot;</span><span class="p">)</span>
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">rust_core</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">inp</span><span class="p">)</span>
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">        </span><span class="c1"># GDScript fallback</span>
-<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">        </span><span class="o">...</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">static</span><span class="w"> </span><span class="k">func</span><span class="w"> </span><span class="n">step</span><span class="p">(</span><span class="n">state</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="p">,</span><span class="w"> </span><span class="n">inp</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="p">:</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">use_rust</span><span class="p">():</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">        </span><span class="k">var</span><span class="w"> </span><span class="n">rust_core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ClassDB</span><span class="o">.</span><span class="n">instantiate</span><span class="p">(</span><span class="s2">&quot;RustCore&quot;</span><span class="p">)</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">rust_core</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">inp</span><span class="p">)</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">        </span><span class="c1"># GDScript fallback</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">        </span><span class="o">...</span>
 </code></pre></div></p>
 <p>Run the same fixtures against both implementations to verify equivalence.</p>
+<h2 id="deterministic-events">Deterministic Events<a class="headerlink" href="#deterministic-events" title="Permanent link">&para;</a></h2>
+<p>Events are messages emitted by <code>step()</code> that describe what happened during the simulation tick. They're part of the deterministic output - same inputs produce same events.</p>
+<h3 id="event-types">Event Types<a class="headerlink" href="#event-types" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">enum</span><span class="w"> </span><span class="n">Type</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="n">TICK_ADVANCED</span><span class="p">,</span><span class="w">      </span><span class="c1"># Simulation time moved forward</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="n">DAMAGE_APPLIED</span><span class="p">,</span><span class="w">     </span><span class="c1"># Entity took damage</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span><span class="n">ENTITY_SPAWNED</span><span class="p">,</span><span class="w">     </span><span class="c1"># New entity created</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="n">ENTITY_DESTROYED</span><span class="p">,</span><span class="w">   </span><span class="c1"># Entity removed</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">    </span><span class="n">SFX_REQUESTED</span><span class="p">,</span><span class="w">      </span><span class="c1"># Play a sound effect</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">    </span><span class="n">VFX_REQUESTED</span><span class="p">,</span><span class="w">      </span><span class="c1"># Spawn visual effect</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">    </span><span class="n">UI_MESSAGE</span><span class="p">,</span><span class="w">         </span><span class="c1"># Show UI notification</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="creating-events">Creating Events<a class="headerlink" href="#creating-events" title="Permanent link">&para;</a></h3>
+<p>Events are created via factory methods in <code>GameEvent</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># In core_api.gd step() function:</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GameEvent</span><span class="o">.</span><span class="n">tick_advanced</span><span class="p">(</span><span class="n">old_tick</span><span class="p">,</span><span class="w"> </span><span class="n">next</span><span class="o">.</span><span class="n">tick</span><span class="p">))</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GameEvent</span><span class="o">.</span><span class="n">damage_applied</span><span class="p">(</span><span class="n">entity_id</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="n">new_health</span><span class="p">))</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GameEvent</span><span class="o">.</span><span class="n">sfx_requested</span><span class="p">(</span><span class="s2">&quot;hit&quot;</span><span class="p">))</span>
+</code></pre></div>
+<h3 id="testing-events">Testing Events<a class="headerlink" href="#testing-events" title="Permanent link">&para;</a></h3>
+<p>Fixtures can assert both state and events:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="p">{</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">  </span><span class="nt">&quot;initial_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;seed_val&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;rng_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">  </span><span class="nt">&quot;input&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;delta&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">  </span><span class="nt">&quot;expected_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;seed_val&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;rng_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">  </span><span class="nt">&quot;expected_events&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TICK_ADVANCED&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;payload&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;old_tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;new_tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="adapters">Adapters<a class="headerlink" href="#adapters" title="Permanent link">&para;</a></h2>
+<p>Adapters form the boundary between the deterministic core and Godot's presentation layer.</p>
+<h3 id="inputadapter">InputAdapter<a class="headerlink" href="#inputadapter" title="Permanent link">&para;</a></h3>
+<p>Converts Godot's <code>Input</code> singleton to typed <code>GameInput</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">func</span><span class="w"> </span><span class="n">_process</span><span class="p">(</span><span class="n">_delta</span><span class="p">):</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="n">inp</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">InputAdapter</span><span class="o">.</span><span class="n">read_input</span><span class="p">()</span><span class="w">  </span><span class="c1"># Godot Input → GameInput</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">CoreAPI</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">inp</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="viewadapter">ViewAdapter<a class="headerlink" href="#viewadapter" title="Permanent link">&para;</a></h3>
+<p>Applies <code>GameState</code> to Godot Nodes for rendering:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">ViewAdapter</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="w">  </span><span class="c1"># Update node positions, animations</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="n">ViewAdapter</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">prev</span><span class="p">,</span><span class="w"> </span><span class="n">next</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="w">  </span><span class="c1"># Smooth rendering between ticks</span>
+</code></pre></div>
+<h3 id="eventadapter">EventAdapter<a class="headerlink" href="#eventadapter" title="Permanent link">&para;</a></h3>
+<p>Consumes <code>GameEvent[]</code> and triggers presentation effects:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="k">var</span><span class="w"> </span><span class="n">event_adapter</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">EventAdapter</span><span class="o">.</span><span class="n">new</span><span class="p">()</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="n">event_adapter</span><span class="o">.</span><span class="n">process_events</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">events</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="w">  </span><span class="c1"># VFX, SFX, UI</span>
+</code></pre></div>
+<p>The adapter registers asset paths:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">event_adapter</span><span class="o">.</span><span class="n">sfx_registry</span><span class="p">[</span><span class="s2">&quot;hit&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;res://audio/sfx/hit.wav&quot;</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="n">event_adapter</span><span class="o">.</span><span class="n">vfx_registry</span><span class="p">[</span><span class="s2">&quot;explosion&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;res://vfx/explosion.tscn&quot;</span>
+</code></pre></div></p>
+<p><strong>Registry Design:</strong> The registries use <code>Dictionary</code> with <code>String</code> keys and <code>String</code> values (resource paths). This is intentionally simple:
+- Keys are semantic identifiers from the core ("hit", "explosion")
+- Values are Godot resource paths
+- No typed wrapper needed - the simplicity aids debugging and hot-reloading</p>
+<p>For larger projects, consider a <code>Resource</code>-based registry that can be edited in the Godot inspector.</p>
 <h2 id="scaling-patterns">Scaling Patterns<a class="headerlink" href="#scaling-patterns" title="Permanent link">&para;</a></h2>
 <p>As your game grows, evolve the architecture in phases. Each phase builds on the previous while maintaining the deterministic seam contract.</p>
 <h3 id="current-typed-resources">Current: Typed Resources<a class="headerlink" href="#current-typed-resources" title="Permanent link">&para;</a></h3>
 <p>The template now uses typed Resource classes for state and input:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># godot/core/resources/game_state.gd</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">class_name</span><span class="w"> </span><span class="n">GameState</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="n">Resource</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">tick</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">seed_val</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="k">static</span><span class="w"> </span><span class="k">func</span><span class="w"> </span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="p">):</span>
-<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">    </span><span class="c1"># Convert from JSON/Dictionary</span>
-<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">    </span><span class="o">...</span>
-<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>
-<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="k">func</span><span class="w"> </span><span class="n">to_dict</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="p">:</span>
-<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="w">    </span><span class="c1"># Convert to JSON/Dictionary</span>
-<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="s2">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">tick</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;seed_val&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">seed_val</span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1"># godot/core/resources/game_state.gd</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="k">class_name</span><span class="w"> </span><span class="n">GameState</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="n">Resource</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">tick</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">seed_val</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="k">static</span><span class="w"> </span><span class="k">func</span><span class="w"> </span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="p">):</span>
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a><span class="w">    </span><span class="c1"># Convert from JSON/Dictionary</span>
+<a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a><span class="w">    </span><span class="o">...</span>
+<a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>
+<a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a><span class="k">func</span><span class="w"> </span><span class="n">to_dict</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="p">:</span>
+<a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a><span class="w">    </span><span class="c1"># Convert to JSON/Dictionary</span>
+<a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="s2">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">tick</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;seed_val&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">seed_val</span><span class="p">}</span>
 </code></pre></div>
 <p><strong>Benefits:</strong>
 - Autocomplete and type checking in editor
@@ -994,66 +1231,66 @@
 - 1:1 mapping to Rust structs
 - Resources still serialize through <code>to_dict()</code> for fixtures</p>
 <p><strong>Usage:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Dictionary API (for fixtures, JSON interop)</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="k">var</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CoreAPI</span><span class="o">.</span><span class="n">step</span><span class="p">({</span><span class="s2">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;seed_val&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s2">&quot;delta&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">})</span>
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1"># Typed API (for game code)</span>
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="k">var</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GameState</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s2">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">})</span>
-<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="k">var</span><span class="w"> </span><span class="n">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GameInput</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s2">&quot;delta&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">})</span>
-<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="k">var</span><span class="w"> </span><span class="n">next_state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CoreAPI</span><span class="o">.</span><span class="n">step_typed</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">input</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1"># Dictionary API (for fixtures, JSON interop)</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="k">var</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CoreAPI</span><span class="o">.</span><span class="n">step</span><span class="p">({</span><span class="s2">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;seed_val&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s2">&quot;delta&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">})</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="c1"># Typed API (for game code)</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="k">var</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GameState</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s2">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">})</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="k">var</span><span class="w"> </span><span class="n">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GameInput</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s2">&quot;delta&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">})</span>
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="k">var</span><span class="w"> </span><span class="n">next_state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CoreAPI</span><span class="o">.</span><span class="n">step_typed</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">input</span><span class="p">)</span>
 </code></pre></div></p>
 <h3 id="phase-2-entity-resources">Phase 2: Entity Resources<a class="headerlink" href="#phase-2-entity-resources" title="Permanent link">&para;</a></h3>
 <p>When you need multiple game objects, add an Entity Resource:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># godot/core/resources/entity.gd</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="k">class_name</span><span class="w"> </span><span class="n">Entity</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="n">Resource</span>
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">position_x</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
-<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">position_y</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
-<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">health</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
-<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>
-<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="k">static</span><span class="w"> </span><span class="k">func</span><span class="w"> </span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="p">):</span>
-<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Entity</span><span class="o">.</span><span class="n">new</span><span class="p">()</span>
-<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="w">    </span><span class="n">e</span><span class="o">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
-<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="w">    </span><span class="n">e</span><span class="o">.</span><span class="n">position_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;position_x&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">))</span>
-<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="w">    </span><span class="n">e</span><span class="o">.</span><span class="n">position_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;position_y&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">))</span>
-<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="w">    </span><span class="n">e</span><span class="o">.</span><span class="n">health</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;health&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">))</span>
-<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">e</span>
-<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>
-<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="k">func</span><span class="w"> </span><span class="n">to_dict</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="p">:</span>
-<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a><span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">id</span><span class="p">,</span>
-<a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="w">        </span><span class="s2">&quot;position_x&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">position_x</span><span class="p">,</span>
-<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a><span class="w">        </span><span class="s2">&quot;position_y&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">position_y</span><span class="p">,</span>
-<a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a><span class="w">        </span><span class="s2">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">health</span>
-<a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a><span class="w">    </span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="c1"># godot/core/resources/entity.gd</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="k">class_name</span><span class="w"> </span><span class="n">Entity</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="n">Resource</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">position_x</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">position_y</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">health</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a><span class="k">static</span><span class="w"> </span><span class="k">func</span><span class="w"> </span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="p">):</span>
+<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Entity</span><span class="o">.</span><span class="n">new</span><span class="p">()</span>
+<a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a><span class="w">    </span><span class="n">e</span><span class="o">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
+<a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a><span class="w">    </span><span class="n">e</span><span class="o">.</span><span class="n">position_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;position_x&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">))</span>
+<a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a><span class="w">    </span><span class="n">e</span><span class="o">.</span><span class="n">position_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;position_y&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">))</span>
+<a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a><span class="w">    </span><span class="n">e</span><span class="o">.</span><span class="n">health</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;health&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">))</span>
+<a id="__codelineno-25-15" name="__codelineno-25-15" href="#__codelineno-25-15"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">e</span>
+<a id="__codelineno-25-16" name="__codelineno-25-16" href="#__codelineno-25-16"></a>
+<a id="__codelineno-25-17" name="__codelineno-25-17" href="#__codelineno-25-17"></a><span class="k">func</span><span class="w"> </span><span class="n">to_dict</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="p">:</span>
+<a id="__codelineno-25-18" name="__codelineno-25-18" href="#__codelineno-25-18"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-25-19" name="__codelineno-25-19" href="#__codelineno-25-19"></a><span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">id</span><span class="p">,</span>
+<a id="__codelineno-25-20" name="__codelineno-25-20" href="#__codelineno-25-20"></a><span class="w">        </span><span class="s2">&quot;position_x&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">position_x</span><span class="p">,</span>
+<a id="__codelineno-25-21" name="__codelineno-25-21" href="#__codelineno-25-21"></a><span class="w">        </span><span class="s2">&quot;position_y&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">position_y</span><span class="p">,</span>
+<a id="__codelineno-25-22" name="__codelineno-25-22" href="#__codelineno-25-22"></a><span class="w">        </span><span class="s2">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">health</span>
+<a id="__codelineno-25-23" name="__codelineno-25-23" href="#__codelineno-25-23"></a><span class="w">    </span><span class="p">}</span>
 </code></pre></div>
 <p>Update GameState to include entities:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">entities</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span><span class="w">  </span><span class="c1"># id -&gt; Entity</span>
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="k">func</span><span class="w"> </span><span class="n">to_dict</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="p">:</span>
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="n">ents</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span>
-<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">entities</span><span class="p">:</span>
-<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">        </span><span class="n">ents</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">id</span><span class="p">)]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">entities</span><span class="p">[</span><span class="n">id</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="s2">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">tick</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;seed_val&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">seed_val</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;entities&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">ents</span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">entities</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span><span class="w">  </span><span class="c1"># id -&gt; Entity</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="k">func</span><span class="w"> </span><span class="n">to_dict</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="p">:</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="n">ents</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">entities</span><span class="p">:</span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="w">        </span><span class="n">ents</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">id</span><span class="p">)]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">entities</span><span class="p">[</span><span class="n">id</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="s2">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">tick</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;seed_val&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">seed_val</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;entities&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">ents</span><span class="p">}</span>
 </code></pre></div></p>
 <h3 id="phase-3-systems-decomposition">Phase 3: Systems Decomposition<a class="headerlink" href="#phase-3-systems-decomposition" title="Permanent link">&para;</a></h3>
 <p>When <code>step()</code> grows beyond ~100 lines, decompose into systems:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># godot/core/systems/physics_system.gd</span>
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="k">class_name</span><span class="w"> </span><span class="n">PhysicsSystem</span>
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
-<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="k">static</span><span class="w"> </span><span class="k">func</span><span class="w"> </span><span class="n">step</span><span class="p">(</span><span class="n">state</span><span class="p">:</span><span class="w"> </span><span class="n">GameState</span><span class="p">,</span><span class="w"> </span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="n">GameInput</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
-<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">entity</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">state</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">        </span><span class="n">entity</span><span class="o">.</span><span class="n">position_x</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">entity</span><span class="o">.</span><span class="n">velocity_x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">input</span><span class="o">.</span><span class="n">delta</span>
-<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">        </span><span class="n">entity</span><span class="o">.</span><span class="n">position_y</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">entity</span><span class="o">.</span><span class="n">velocity_y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">input</span><span class="o">.</span><span class="n">delta</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="c1"># godot/core/systems/physics_system.gd</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="k">class_name</span><span class="w"> </span><span class="n">PhysicsSystem</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="k">static</span><span class="w"> </span><span class="k">func</span><span class="w"> </span><span class="n">step</span><span class="p">(</span><span class="n">state</span><span class="p">:</span><span class="w"> </span><span class="n">GameState</span><span class="p">,</span><span class="w"> </span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="n">GameInput</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">entity</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">state</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="w">        </span><span class="n">entity</span><span class="o">.</span><span class="n">position_x</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">entity</span><span class="o">.</span><span class="n">velocity_x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">input</span><span class="o">.</span><span class="n">delta</span>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="w">        </span><span class="n">entity</span><span class="o">.</span><span class="n">position_y</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">entity</span><span class="o">.</span><span class="n">velocity_y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">input</span><span class="o">.</span><span class="n">delta</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># godot/core/core_api.gd</span>
-<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="k">static</span><span class="w"> </span><span class="k">func</span><span class="w"> </span><span class="n">step_typed</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">inp</span><span class="p">):</span>
-<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="o">.</span><span class="n">duplicate_state</span><span class="p">()</span>
-<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">    </span><span class="n">PhysicsSystem</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">next</span><span class="p">,</span><span class="w"> </span><span class="n">inp</span><span class="p">)</span>
-<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">    </span><span class="n">CombatSystem</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">next</span><span class="p">,</span><span class="w"> </span><span class="n">inp</span><span class="p">)</span>
-<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">    </span><span class="n">AISystem</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">next</span><span class="p">,</span><span class="w"> </span><span class="n">inp</span><span class="p">)</span>
-<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">next</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="c1"># godot/core/core_api.gd</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="k">static</span><span class="w"> </span><span class="k">func</span><span class="w"> </span><span class="n">step_typed</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">inp</span><span class="p">):</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="o">.</span><span class="n">duplicate_state</span><span class="p">()</span>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="w">    </span><span class="n">PhysicsSystem</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">next</span><span class="p">,</span><span class="w"> </span><span class="n">inp</span><span class="p">)</span>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="w">    </span><span class="n">CombatSystem</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">next</span><span class="p">,</span><span class="w"> </span><span class="n">inp</span><span class="p">)</span>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="w">    </span><span class="n">AISystem</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">next</span><span class="p">,</span><span class="w"> </span><span class="n">inp</span><span class="p">)</span>
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">next</span>
 </code></pre></div>
 <p><strong>When to add systems:</strong>
 - Multiple distinct domains (physics, combat, AI)
@@ -1108,6 +1345,55 @@
 - Add entities when you have multiple game objects
 - Add systems when step() gets unwieldy
 - Migrate to Rust when you need performance</p>
+<h3 id="scaling-event-granularity">Scaling: Event Granularity<a class="headerlink" href="#scaling-event-granularity" title="Permanent link">&para;</a></h3>
+<p>Events can be categorized by their semantic level:</p>
+<p><strong>Semantic Events</strong> (what happened):
+- <code>DamageApplied { entity_id, amount, new_health }</code>
+- <code>EntitySpawned { id, type, x, y }</code>
+- <code>LevelCompleted { score, time }</code></p>
+<p><strong>Presentation Events</strong> (how to show it):
+- <code>SfxRequested { key: "hit" }</code>
+- <code>VfxRequested { key: "explosion", x, y }</code>
+- <code>UiMessage { text_key: "game_over" }</code></p>
+<h4 id="trade-offs">Trade-offs<a class="headerlink" href="#trade-offs" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Semantic only</strong></td>
+<td>Core doesn't know about assets; can swap audio/VFX packs without touching logic</td>
+<td>EventAdapter must map semantic → presentation; more code in shell</td>
+</tr>
+<tr>
+<td><strong>Mixed (current)</strong></td>
+<td>Simpler; core can request specific effects; less adapter logic</td>
+<td>Core couples to asset keys; changing audio requires core changes</td>
+</tr>
+<tr>
+<td><strong>Presentation only</strong></td>
+<td>Direct control; no mapping layer</td>
+<td>Core becomes a presentation engine; loses semantic meaning</td>
+</tr>
+</tbody>
+</table>
+<h4 id="recommendation">Recommendation<a class="headerlink" href="#recommendation" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Small projects / game jams</strong>: Use mixed approach (current). Ship fast.</li>
+<li><strong>Larger projects</strong>: Migrate to semantic-only. Core emits <code>DamageApplied</code>, EventAdapter decides to play "hit.wav" based on damage type, entity, etc.</li>
+<li><strong>Rollback/netcode</strong>: Semantic events are safer - presentation can be re-derived from semantic events during resimulation.</li>
+</ul>
+<h4 id="migration-path">Migration Path<a class="headerlink" href="#migration-path" title="Permanent link">&para;</a></h4>
+<p>When moving to semantic-only:
+1. Remove <code>SFX_REQUESTED</code>, <code>VFX_REQUESTED</code> from GameEvent enum
+2. Add semantic events for each game action
+3. Update EventAdapter to map semantic events to presentation
+4. Fixtures only assert semantic events (presentation is non-deterministic in replays anyway)</p>
 
 
 
