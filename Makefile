@@ -1,4 +1,4 @@
-.PHONY: fmt lint test build-ext copy-ext smoke ci check fixtures gdscript-ci docs-install docs-build docs-serve docs-check docs-clean dev-env dev-shell dev-ci dev-check-tools dev-validate dev-fixtures
+.PHONY: fmt lint test build-ext copy-ext smoke ci check fixtures gdscript-ci docs-install docs-build docs-serve docs-check docs-clean dev-env dev-shell dev-ci dev-check-tools dev-validate dev-fixtures act-check act-install docker-check ci-local ci-list ci-clean
 
 GODOT ?= godot
 RUST_DIR := rust
@@ -122,3 +122,93 @@ dev-validate: dev-check-tools dev-ci
 
 dev-fixtures:
 	docker compose -f docker/docker-compose.yml run --rm dev make fixtures
+
+dev-smoke:
+	docker compose -f docker/docker-compose.yml run --rm dev make smoke
+
+# Local GitHub Actions Testing with act
+#######################################
+
+# Detect docker socket (Colima, Docker Desktop, Podman, or default)
+define docker_socket
+$(shell \
+	if [ -S $$HOME/.colima/default/docker.sock ]; then \
+		echo "$$HOME/.colima/default/docker.sock"; \
+	elif [ -S /var/run/docker.sock ]; then \
+		echo "/var/run/docker.sock"; \
+	elif [ -S $$HOME/.docker/run/docker.sock ]; then \
+		echo "$$HOME/.docker/run/docker.sock"; \
+	elif [ -S /run/user/$$(id -u)/podman/podman.sock ]; then \
+		echo "/run/user/$$(id -u)/podman/podman.sock"; \
+	else \
+		echo "/var/run/docker.sock"; \
+	fi \
+)
+endef
+
+DOCKER_SOCKET := $(docker_socket)
+ACT_IMAGE := catthehacker/ubuntu:act-22.04
+ACT_ARCH := linux/amd64
+
+act-check:  ## Check if act is installed, install if missing
+	@if ! which act > /dev/null 2>&1; then \
+		echo "act is not installed. Installing automatically..."; \
+		$(MAKE) act-install; \
+	fi
+
+docker-check:  ## Check if Docker/Podman/Colima is running
+	@if ! DOCKER_HOST="unix://$(DOCKER_SOCKET)" docker ps >/dev/null 2>&1; then \
+		echo "Cannot connect to Docker daemon"; \
+		echo ""; \
+		echo "Please start your container runtime first:"; \
+		echo "  - Docker Desktop: Open Docker Desktop app"; \
+		echo "  - Colima: run 'colima start'"; \
+		echo "  - Podman: run 'podman machine start'"; \
+		echo "  - Docker (Linux): run 'sudo systemctl start docker'"; \
+		echo ""; \
+		echo "Attempted socket: $(DOCKER_SOCKET)"; \
+		exit 1; \
+	fi
+	@echo "Docker is running (socket: $(DOCKER_SOCKET))"
+
+act-install:  ## Install act for local GitHub Actions testing
+	@echo "Installing act (GitHub Actions local runner)..."
+	@if which act > /dev/null 2>&1; then \
+		echo "act is already installed: $$(which act)"; \
+		act --version; \
+	elif which brew > /dev/null 2>&1; then \
+		echo "Installing act via Homebrew..."; \
+		brew install act; \
+	else \
+		echo "Installing act via install script..."; \
+		curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash; \
+	fi
+	@echo ""
+	@echo "act installed successfully!"
+	@echo "Run 'make ci-list' to see available workflows"
+	@echo "Run 'make ci-local' to run CI locally"
+
+ci-list: act-check docker-check  ## List available GitHub Actions workflows and jobs
+	@echo "Available workflows and jobs:"
+	@DOCKER_HOST="unix://$(DOCKER_SOCKET)" act -l
+
+ci-local: act-check docker-check  ## Run GitHub Actions CI workflow locally
+	@echo "Running GitHub Actions CI locally..."
+	@echo "Using Docker socket: $(DOCKER_SOCKET)"
+	@echo "Container architecture: $(ACT_ARCH)"
+	@echo "Image: $(ACT_IMAGE)"
+	@echo ""
+	@DOCKER_HOST="unix://$(DOCKER_SOCKET)" act push \
+		-W .github/workflows/ci.yml \
+		-j linux \
+		--container-daemon-socket - \
+		--container-architecture $(ACT_ARCH) \
+		-P ubuntu-latest=$(ACT_IMAGE)
+	@echo ""
+	@echo "Local CI complete - matches GitHub Actions!"
+
+ci-clean:  ## Clean up act cache and containers
+	@echo "Cleaning up act cache and containers..."
+	@-docker ps -a | grep "act-" | awk '{print $$1}' | xargs docker rm -f 2>/dev/null || true
+	@-docker images | grep "act-" | awk '{print $$3}' | xargs docker rmi -f 2>/dev/null || true
+	@echo "Cleanup complete!"

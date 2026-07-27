@@ -6,12 +6,20 @@ func _initialize() -> void:
 	var ok := true
 	var err := ""
 
-	# Test 1: CoreAPI.step works (GDScript seam)
-	var s := {"tick": 0, "seed_val": 0}
-	var out: Dictionary = CoreAPIScript.step_dict(s, {"delta": 1})
-	if out.get("tick", -1) != 1:
+	# Test 1: CoreAPI.step works (GDScript seam) - now returns StepResult
+	var s := {"tick": 0, "seed_val": 0, "rng_state": 0}
+	var result: Dictionary = CoreAPIScript.step_dict(s, {"delta": 1})
+	var state: Dictionary = result.get("state", {})
+	var events: Array = result.get("events", [])
+	if state.get("tick", -1) != 1:
 		ok = false
-		err = "CoreAPI.step invariant failed: expected tick=1, got=%s" % str(out)
+		err = "CoreAPI.step state invariant failed: expected tick=1, got=%s" % str(state)
+	elif events.size() != 1:
+		ok = false
+		err = "CoreAPI.step events invariant failed: expected 1 event, got=%d" % events.size()
+	elif events[0].get("type", "") != "TICK_ADVANCED":
+		ok = false
+		err = "CoreAPI.step event type failed: expected TICK_ADVANCED, got=%s" % events[0].get("type", "")
 
 	# Test 2: Main scene can be loaded
 	if ok:

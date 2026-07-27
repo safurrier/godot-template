@@ -18,22 +18,39 @@ static func use_rust() -> bool:
 # Primary typed API for game code.
 # @param state: Current game state as GameState Resource
 # @param inp: Input for this tick as GameInput Resource
-# @returns: Next state as new GameState Resource
-static func step(state: GameState, inp: GameInput) -> GameState:
+# @returns: StepResult containing next state and deterministic events
+static func step(state: GameState, inp: GameInput) -> StepResult:
 	var next := state.duplicate_state()
+	var events: Array[GameEvent] = []
+
+	# Track old tick for event
+	var old_tick := state.tick
+
+	# Core simulation logic
 	next.tick += inp.delta
-	return next
+
+	# Emit deterministic event
+	events.append(GameEvent.tick_advanced(old_tick, next.tick))
+
+	return StepResult.create(next, events)
 
 
 # Dictionary adapter for fixture tests and JSON interop.
 # @param state: Current game state (Dictionary with primitives only)
 # @param inp: Input for this tick (Dictionary with primitives only)
-# @returns: Next state (new Dictionary, original unchanged)
+# @returns: StepResult as Dictionary (state + events)
 static func step_dict(state: Dictionary, inp: Dictionary) -> Dictionary:
 	var typed_state := GameState.from_dict(state)
 	var typed_input := GameInput.from_dict(inp)
 	var result := step(typed_state, typed_input)
 	return result.to_dict()
+
+
+# Legacy adapter - returns just state for backwards compatibility
+# @deprecated Use step_dict() which returns StepResult
+static func step_dict_state_only(state: Dictionary, inp: Dictionary) -> Dictionary:
+	var result := step_dict(state, inp)
+	return result.get("state", {})
 
 
 # AI decision-making seam.

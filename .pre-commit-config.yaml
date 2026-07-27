@@ -1,27 +1,15 @@
+# Pre-commit hooks for Godot + Rust project
+# Note: Rust operations run in Docker for consistent toolchain (Rust 1.92)
+# Use `make dev-ci` for full validation before committing
+
 repos:
 -   repo: local
     hooks:
-    -   id: lint
-        name: Run Linter
-        entry: make lint
+    # Rust checks run via Docker to ensure consistent toolchain
+    -   id: dev-ci
+        name: Run CI in Docker (fmt, lint, test, smoke)
+        entry: make dev-ci
         language: system
         always_run: true
         pass_filenames: false
-    -   id: format
-        name: Run Formatter
-        entry: make format
-        language: system
-        always_run: true
-        pass_filenames: false
-    -   id: test
-        name: Run Tests
-        entry: make test
-        language: system
-        always_run: true
-        pass_filenames: false
-    -   id: ty
-        name: Run ty
-        entry: make ty
-        language: system
-        always_run: true
-        pass_filenames: false
+        stages: [pre-push]  # Only run on push (faster commits)

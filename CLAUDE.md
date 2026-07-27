@@ -14,6 +14,9 @@ make dev-ci
 
 # Run GDScript fixture tests
 make dev-fixtures
+
+# Run GitHub Actions locally (exact same workflow)
+make ci-local
 ```
 
 ### Local Development (requires Godot on PATH)
@@ -21,34 +24,45 @@ make dev-fixtures
 make ci          # Full validation: fmt + lint + test + build + smoke
 make fixtures    # Run GDScript fixture tests
 make gdscript-ci # Smoke + fixtures (GDScript only)
+make ci-local    # Run GitHub Actions workflow locally via act
 ```
 
 ## Architecture
 
-**GDScript-first with deterministic seams** + **typed Resources** + **optional Rust acceleration**.
+**GDScript-first with deterministic seams** + **typed Resources** + **event system** + **optional Rust acceleration**.
 
-See `docs/architecture.md` for full details on scaling patterns and Rust migration.
+See `docs/architecture.md` for full details on scaling patterns, events, and Rust migration.
 
 ### Key Files
 - `godot/core/core_api.gd` - Deterministic seam: `step()`, `decide()`, `generate()`
-- `godot/core/resources/` - Typed state: `GameState`, `GameInput`
-- `godot/core/schema.gd` - JSON normalization helpers
-- `godot/tests/fixtures/` - Golden test JSON files
+- `godot/core/resources/game_state.gd` - Typed state with deterministic RNG
+- `godot/core/resources/game_event.gd` - Deterministic events (TICK_ADVANCED, DAMAGE_APPLIED, etc.)
+- `godot/core/resources/step_result.gd` - Return type for `step()` (state + events)
+- `godot/adapters/` - Boundary layer: InputAdapter, ViewAdapter, EventAdapter
+- `godot/tests/fixtures/` - Golden test JSON files (state + events)
 
 ### CoreAPI Pattern
-All game logic flows through typed Resources with Dictionary adapters:
+All game logic flows through typed Resources and returns StepResult:
 ```gdscript
-# Dictionary API (fixtures, JSON interop)
-var next = CoreAPI.step({"tick": 0, "seed_val": 0}, {"delta": 1})
-
 # Typed API (game code)
-var state = GameState.from_dict({"tick": 0})
-var next_state = CoreAPI.step_typed(state, input)
+var state := GameState.new()
+state.tick = 0
+state.rng_state = 42
+
+var inp := InputAdapter.read_input()
+var result := CoreAPI.step(state, inp)
+
+# result.state = next GameState
+# result.events = Array[GameEvent] (deterministic)
+
+event_adapter.process_events(result.events, self)
+ViewAdapter.apply(result.state, self)
 ```
 
 This enables:
 - **Type safety**: Resources provide autocomplete and validation
-- **Fixture testing**: JSON files define input/expected output
+- **Deterministic events**: Same inputs → same events (replay-friendly)
+- **Fixture testing**: JSON files define input/expected output/expected events
 - **Rust migration**: Resources map 1:1 to Rust structs
 
 ## Key Commands
@@ -56,6 +70,7 @@ This enables:
 | Command | Description |
 |---------|-------------|
 | `make ci` | Full local CI: fmt + lint + test + build-ext + smoke |
+| `make ci-local` | Run GitHub Actions workflow locally via act |
 | `make fixtures` | Run GDScript fixture tests |
 | `make gdscript-ci` | Smoke + fixtures (GDScript validation) |
 | `make test` | Run `cargo test -p core` (Rust tests) |
@@ -64,6 +79,8 @@ This enables:
 | `make dev-fixtures` | Run fixture tests in Docker |
 | `make dev-validate` | Check tools + run full CI in container |
 | `make dev-shell` | Interactive bash in container |
+| `make ci-list` | List available GitHub Actions workflows |
+| `make ci-clean` | Clean up act containers and images |
 
 ## Validation Loop
 
@@ -72,6 +89,7 @@ This enables:
 2. **Add fixture test** in `godot/tests/fixtures/` (if adding logic)
 3. **Run fixtures**: `make dev-fixtures`
 4. **Full validation**: `make dev-ci`
+5. **CI parity check**: `make ci-local`
 
 ### Rust Changes
 1. **Edit code** in `rust/core/`
@@ -95,20 +113,23 @@ godot/
     schema.gd                      # JSON normalization helpers
     sim_clock.gd                   # Batch simulation driver
     resources/                     # Typed state classes
-      game_state.gd                # GameState Resource
+      game_state.gd                # GameState Resource (with RNG)
       game_input.gd                # GameInput Resource
+      game_event.gd                # GameEvent (deterministic events)
+      step_result.gd               # StepResult (state + events)
+  adapters/                        # Godot ↔ Core boundary
+    input_adapter.gd               # Input singleton → GameInput
+    view_adapter.gd                # GameState → Node updates
+    event_adapter.gd               # GameEvent → VFX/SFX/UI
   scenes/
     Main.tscn                      # Main game scene
   scripts/
-    Main.gd                        # Game script (uses CoreAPI)
+    Main.gd                        # Game script (uses CoreAPI + adapters)
     smoke_test.gd                  # Headless smoke test
     run_fixtures.gd                # Fixture test runner
   tests/
     fixtures/                      # Golden test JSON files
-      step_basic.json
-  addons/my_ext/                   # Rust extension (optional)
-    my_ext.gdextension
-    bin/                           # Built binaries per platform
+      step_basic.json              # State + event assertions
 
 rust/                              # Optional Rust acceleration
   Cargo.toml                       # Workspace (members: core, gdext_bridge)
@@ -124,17 +145,30 @@ docker/
 
 ## Adding New Functionality
 
-### Adding game logic (GDScript - most common)
+### Adding game logic with events (GDScript)
 1. Add logic to `godot/core/core_api.gd` in the `step()` function
-2. Create a fixture test in `godot/tests/fixtures/my_test.json`:
+2. Emit events for significant actions:
+   ```gdscript
+   events.append(GameEvent.damage_applied(entity_id, 25, new_health))
+   events.append(GameEvent.sfx_requested("hit"))
+   ```
+3. Create a fixture test in `godot/tests/fixtures/my_test.json`:
    ```json
    {
-     "initial_state": { "tick": 0 },
+     "initial_state": { "tick": 0, "seed_val": 0, "rng_state": 0 },
      "input": { "delta": 1 },
-     "expected_state": { "tick": 1 }
+     "expected_state": { "tick": 1, "seed_val": 0, "rng_state": 0 },
+     "expected_events": [
+       { "type": "TICK_ADVANCED", "payload": { "old_tick": 0, "new_tick": 1 } }
+     ]
    }
    ```
-3. Run `make dev-fixtures` to validate
+4. Run `make dev-fixtures` to validate
+
+### Adding event types
+1. Add new type to `GameEvent.Type` enum in `game_event.gd`
+2. Add factory method (e.g., `static func my_event(...) -> GameEvent`)
+3. Handle in `EventAdapter._handle_event()` for presentation
 
 ### Adding Rust logic (optional)
 1. Add code to `rust/core/src/lib.rs`
@@ -183,7 +217,15 @@ GitHub Actions runs on every PR and push to main:
 2. Clippy lint
 3. Core tests
 4. Build extension
-5. Godot headless smoke test
+5. Godot import (class cache)
+6. Godot headless smoke test
+7. Fixture tests
+
+### Local CI Parity
+Run the exact same GitHub Actions workflow locally:
+```bash
+make ci-local    # Uses act to run .github/workflows/ci.yml
+```
 
 See `.github/workflows/ci.yml` for details.
 
@@ -203,12 +245,20 @@ brew install docker-compose
 ### libfontconfig warning
 This is cosmetic - Godot runs fine headless without font rendering.
 
+### ci-local not working
+```bash
+make docker-check   # Verify Docker is running
+make act-install    # Install act if missing
+make ci-clean       # Clean stale containers
+```
+
 ## Best Practices
 
 1. **Keep bridge thin** - Only marshal data between Godot and core
 2. **Test in core** - Pure Rust tests are fast and reliable
 3. **Validate often** - Run `make dev-ci` before committing
 4. **Use container** - Ensures consistent environment across machines
+5. **Use ci-local** - Catch CI failures before pushing
 
 ## Plan Persistence
 
